@@ -1,0 +1,4 @@
+body { display:flex; flex-direction:column; }
+#linux-toolbar { flex:0 0 30px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 14px; background:#151525; color:#b7b6cb; border-bottom:1px solid #303047; font:11px system-ui,sans-serif; }
+#linux-toolbar a { color:#8ce8c9; text-decoration:underline; white-space:nowrap; }
+#root { min-height:0; flex:1; height:calc(100% - 31px); }

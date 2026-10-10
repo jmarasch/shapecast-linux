@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "shapecast": {
+    "core_version": "0.3.15",
+    "installer_sha256": "4478901fbff2a07dee1cbaf5cd14a2e33adf45917e7ae8f7ec8b8b80ad09659e",
+    "python_minor": "3.11",
+    "platform": "linux-x86_64"
+  },
+  "python": {
+    "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261009/cpython-3.11.17%2B20261009-x86_64-unknown-linux-gnu-install_only.tar.gz",
+    "sha256": "035b0ccfe7f3d38ab3ddab505290d200c6a265b95fbd5fac76c358751d6bb6a8",
+    "directory": "python",
+    "executable": "bin/python3.11"
+  },
+  "blender": {
+    "version": "4.5.14",
+    "url": "https://ftp.nluug.nl/pub/graphics/blender/release/Blender4.5/blender-4.5.14-linux-x64.tar.xz",
+    "sha256": "9ba871ff2ecd36526b77432745980b7e6664ecd0c7ca11c48849073dcfe06da3",
+    "directory": "blender-4.5.14-linux-x64",
+    "executable": "blender"
+  },
+  "cuda": {
+    "version": "trellis.cpp v0.8.1",
+    "url": "https://github.com/pwilkin/trellis.cpp/releases/download/v0.8.1/trellis-cuda-linux-x64.tar.gz",
+    "sha256": "5257d222a7a4becb9a125aa80b24328f91da22987777d86b312bad4ab237edae",
+    "executable": "trellis-cli",
+    "experimental": true
+  }
+}

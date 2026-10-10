@@ -1,0 +1,13 @@
+shapecast-linux is an independent community compatibility helper, not an official
+Shapecast product. Shapecast belongs to its respective owner.
+
+The MIT license covers this repository's original helper code and documentation.
+It does not grant rights to Shapecast's commercial software, embedded interface,
+model files, licenses, or any separately downloaded runtime.
+
+Users provide their own purchased installer. Application files are extracted only
+to each user's private installation directory and retain their original licensing.
+
+Python-build-standalone, Blender, trellis.cpp and Python dependencies are obtained
+separately from the sources recorded in components.lock.json and requirements-core.txt.
+Their respective license notices remain applicable to those downloads.

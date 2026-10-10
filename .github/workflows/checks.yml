@@ -1,0 +1,19 @@
+name: Source checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.11', '3.14']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Python helper tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+      - name: Synthetic frontend extraction
+        run: node tests/test_frontend.cjs
