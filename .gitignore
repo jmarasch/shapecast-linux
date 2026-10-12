@@ -18,5 +18,7 @@ models/
 *license*.json
 session.json
 install.json
+machine-interface.json
+machine-interface.lock
 .env
 .env.*

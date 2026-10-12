@@ -81,6 +81,7 @@ venv/                  Linux Python dependencies
 components/            Downloaded Python, Blender and optional CUDA runtime
 profiles/preview/      Placeholder test settings, database and library
 profiles/native/       Normal settings, licence, database and library
+machine-interface.json Private selector for a verified physical network adapter
 cache/                 Verified component downloads and pip cache
 install.json           Local component configuration
 ```
@@ -93,6 +94,8 @@ Keep the repository folder as well; the launcher loads the compatibility code fr
 ```
 
 Installation refuses to overwrite an existing runtime or profiles. Back up your libraries and licence before changing or removing an installation. Removing this repository alone does not remove your private data.
+
+The helper verifies and remembers a permanent physical network adapter before the core generates activation codes. This avoids a changing synthetic address returned by the bundled Python runtime on the test host. It does not replace commercial hashing or signature checks. If the selected hardware address changes or cannot be verified, startup stops rather than silently generating a different activation code.
 
 ## More help
 

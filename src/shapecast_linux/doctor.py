@@ -6,6 +6,7 @@ import secrets
 from pathlib import Path
 
 from .common import read_install, verify_vendor
+from .identity import configure_machine_identity
 from .server import profile_settings
 
 
@@ -16,6 +17,7 @@ def main():
     args = parser.parse_args()
     root, config = read_install(args.install_root)
     core_count, asset_count = verify_vendor(root)
+    configure_machine_identity(root)
     from fastapi.testclient import TestClient
     from shapecast_core.api.app import create_app
     from shapecast_core.config import Settings
@@ -24,6 +26,7 @@ def main():
     report = {'platform': platform.system(), 'python': platform.python_version(),
               'core_version': config['core_version'], 'core_files_verified': core_count,
               'ui_assets_verified': asset_count, 'profile': args.mode, 'real_ai_generation_verified': False}
+    report['machine_id_source'] = 'Verified permanent physical network adapter'
     with TestClient(create_app(settings=settings, token=token)) as client:
         headers = {'Authorization': 'Bearer '+token}
         for name, route, fields in (

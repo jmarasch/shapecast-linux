@@ -9,6 +9,7 @@ import webbrowser
 from pathlib import Path
 
 from .common import profile, read_install, verify_vendor
+from .identity import configure_machine_identity
 from .session_control import acquire, clear_session, save_session
 from .ui_server import make_ui
 
@@ -34,6 +35,7 @@ def main():
     args = parser.parse_args()
     root, config = read_install(args.install_root)
     verify_vendor(root)
+    configure_machine_identity(root)
     home = profile(root, args.mode)
     home.mkdir(parents=True, exist_ok=True, mode=0o700)
     lock = acquire(home, root, args.mode, args.restart, args.no_browser)

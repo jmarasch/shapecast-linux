@@ -33,6 +33,12 @@ That is the vendor placeholder pipeline. Prompt text changes the recipe, not the
 
 Relaunching the same profile reopens it. `launch --mode preview --restart` stops only the matching preview server for this installation. Native and preview profiles can run separately. Do not delete a live profile's lock file; stop its terminal session or use the restart option.
 
+## Request code changes every launch
+
+Update to the helper's stable hardware-identity fix. The bundled Python UUID getter was observed returning a synthetic address on the test host, which caused a changing or empty fingerprint. The launcher now reads a real factory address from a physical Linux NIC and remembers the verified selector privately in `machine-interface.json`.
+
+Confirm the code stays the same across restarts before submitting it. A licence issued against a former synthetic code may need reissue by Shapecast. If the selected adapter is missing or its address changes, startup stops; it does not fall back to an invented identity or another adapter. Check the hardware and request reactivation as needed. Do not overwrite the saved hash to imitate the code in an existing licence.
+
 ## Diagnostics
 
 ```bash

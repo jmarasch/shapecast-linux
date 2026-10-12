@@ -2,6 +2,10 @@
 
 Real AI generation has **not** been demonstrated by this project. Installing the optional runtime does not establish that the licensed pipeline works.
 
+The initial helper had an activation stability defect, diagnosed on 2026-10-12: the bundled Python runtime's first UUID node getter supplied a synthetic multicast address even though later getters could find the real NIC. Fresh processes therefore generated changing or empty fingerprints. The original core accepted some of these synthetic addresses. The helper now selects a verified permanent physical NIC from Linux sysfs, saves its selector privately, and verifies the same real address on each startup before populating Python's UUID node cache. Commercial core files, fingerprint hashing and signature verification remain unchanged.
+
+If your request code changed on every launch before this fix, an issued licence may be bound to a synthetic identifier. Do not alter that licence or impersonate the old hash. Update the helper, confirm a stable code across restarts, and ask Shapecast to reissue against the corrected request. The saved selector contains only a local interface name and its hashed identifier, never a licence key. Neither this file nor request codes belong in source control.
+
 The normal native profile preserves the original licence verification. Obtain your licence from Shapecast and use the Linux setup page's licence controls. The [vendor activation page](https://shapecast.io/pages/software-activation) is available if online activation fails. Installation and diagnostics do not send order information or activation requests.
 
 The automatic activation hostname could not be resolved during the initial Linux investigation on 2026-10-10. That observation is not proof of a Linux-specific problem and might change. Use the vendor's manual process or contact their support when needed. Do not upload your licence, order number, activation code or launch token to a GitHub issue.

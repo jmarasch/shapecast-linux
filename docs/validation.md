@@ -18,6 +18,8 @@ The public helper has separate source-only tests for archive traversal, download
 
 Before initial publication, the portable helper passed 11 Python tests and its synthetic frontend tests on Python 3.14; the Python tests also passed on 3.11. Two fresh private installations passed: one using existing Python/Blender executables, and one using the pinned component archives from a verified local cache. Both installed the pinned dependencies into new environments. The fresh preview installation completed a browser job and passed API, GLB/OBJ/STL export, authentication, Host, Origin and traversal checks. Real generation without a licence was again rejected, even with the preview permission set. The archive checksums and extraction were tested locally; live re-downloading those large archives was not repeated.
 
+The 2026-10-12 machine-identity fix passed 16 helper tests on Python 3.14 and 3.11. Six fresh processes using the legacy native runtime and three full portable native server starts returned the same code derived from a verified physical Ethernet adapter. Tests also check rejection of synthetic, virtual and randomized sources, pinning across adapter additions, and refusal to silently change the identifier when hardware changes. This validates fingerprint stability, not successful licence activation or AI generation.
+
 ## Still to verify
 
 - Legitimate licence activation and licensed generation on Linux.
