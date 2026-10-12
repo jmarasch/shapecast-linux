@@ -1,5 +1,7 @@
 # Contributing
 
+Existing contributions, including OpenAI Codex's AI coding assistance, are listed in [CONTRIBUTORS.md](CONTRIBUTORS.md).
+
 Report the Linux distribution, helper revision, Shapecast core version, GPU/driver and the exact step that failed. Say whether you used the preview or native profile. Please distinguish real AI output from placeholder samples.
 
 Keep contributions limited to compatibility code, tests and documentation. Do not commit Shapecast's core, recovered interface, installers, licence files, proprietary model files or personal session data. Synthetic fixtures keep the source-only tests runnable without a purchase.

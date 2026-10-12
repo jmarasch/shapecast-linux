@@ -20,6 +20,8 @@ Before initial publication, the portable helper passed 11 Python tests and its s
 
 The 2026-10-12 machine-identity fix passed 16 helper tests on Python 3.14 and 3.11. Six fresh processes using the legacy native runtime and three full portable native server starts returned the same code derived from a verified physical Ethernet adapter. Tests also check rejection of synthetic, virtual and randomized sources, pinning across adapter additions, and refusal to silently change the identifier when hardware changes. This validates fingerprint stability, not successful licence activation or AI generation.
 
+The maintainer subsequently reported the same corrected request code. Licence activation for that corrected identity is still pending verification; no successful licensed generation is claimed. Contributor roles, including the AI coding assistance used in developing this helper, are recorded in [CONTRIBUTORS.md](../CONTRIBUTORS.md).
+
 ## Still to verify
 
 - Legitimate licence activation and licensed generation on Linux.

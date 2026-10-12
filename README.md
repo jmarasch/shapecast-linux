@@ -4,6 +4,8 @@ An unofficial community helper for running a purchased copy of **Shapecast 0.3.1
 
 **Current status: previews and basic exports work; real AI generation is experimental and has not been verified.** Preview jobs produce a sample box regardless of the prompt. They test the library, viewer and export workflow; they do not generate AI geometry.
 
+The corrected Linux request code has been confirmed on the test machine after fixing an unstable identifier from the bundled Python runtime. Licence activation against the corrected identity and licensed AI generation remain unverified. The [activation notes](docs/ai-generation.md) explain the shorter Linux code and the stability fix.
+
 This project is independent of [Shapecast](https://shapecast.io/). It contains our compatibility scripts and browser adapter. Each user supplies their own Windows installer. Shapecast's application files, interface assets, licenses and models are not distributed here.
 
 ## What has been tested
@@ -103,5 +105,12 @@ The helper verifies and remembers a permanent physical network adapter before th
 - [Activation and experimental AI generation](docs/ai-generation.md)
 - [Validation notes and remaining work](docs/validation.md)
 - [Contributing](CONTRIBUTING.md)
+
+## Contributors
+
+- **Jakob ([jmarasch](https://github.com/jmarasch))** — project direction, Linux hardware testing, troubleshooting reports, repository maintenance and release decisions.
+- **OpenAI Codex** — AI coding assistance with the compatibility investigation, helper implementation, tests and documentation.
+
+This is an AI-assisted project directed and tested by its human maintainer. See [contributor credits](CONTRIBUTORS.md) for the scope of the contributions.
 
 The MIT licence applies to this helper's source only. Shapecast and downloaded components retain their own licences; see [NOTICE](NOTICE).

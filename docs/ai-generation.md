@@ -6,6 +6,14 @@ The initial helper had an activation stability defect, diagnosed on 2026-10-12: 
 
 If your request code changed on every launch before this fix, an issued licence may be bound to a synthetic identifier. Do not alter that licence or impersonate the old hash. Update the helper, confirm a stable code across restarts, and ask Shapecast to reissue against the corrected request. The saved selector contains only a local interface name and its hashed identifier, never a licence key. Neither this file nor request codes belong in source control.
 
+## Why the Linux request code is shorter
+
+The original core collects up to three fingerprint fields: a hardware identifier, a system identifier and the MAC address. The first two use Windows registry values or macOS platform identifiers; those lookups return no value on native Linux. The resulting request therefore contains the product/version information and the hash of one real MAC address. It is shorter because two identifier fields are absent.
+
+That shorter payload is separate from the changing-code defect in the bundled Python runtime. The stable-adapter workaround fixes the changing MAC input without inventing the missing Windows/macOS identifiers. The original local machine matcher accepts a single shared identifier when it matches; vendor issuance and successful activation with this Linux request still need verification.
+
+On 2026-10-12, the maintainer reported the same corrected request code produced by the verified physical adapter. A licence had been received for an earlier unstable request; activation using the corrected identity has not been established. Actual request codes, licence contents and support correspondence are kept out of this repository.
+
 The normal native profile preserves the original licence verification. Obtain your licence from Shapecast and use the Linux setup page's licence controls. The [vendor activation page](https://shapecast.io/pages/software-activation) is available if online activation fails. Installation and diagnostics do not send order information or activation requests.
 
 The automatic activation hostname could not be resolved during the initial Linux investigation on 2026-10-10. That observation is not proof of a Linux-specific problem and might change. Use the vendor's manual process or contact their support when needed. Do not upload your licence, order number, activation code or launch token to a GitHub issue.
