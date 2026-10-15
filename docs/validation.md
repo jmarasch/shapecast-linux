@@ -22,7 +22,7 @@ The clean installation passed these additional checks:
 
 | Check | Observed result |
 | --- | --- |
-| Source checks | 46 Python tests passed on Python 3.11 and 3.14; synthetic extraction and setup-request JavaScript tests passed |
+| Source checks | 48 Python tests passed on Python 3.11 and 3.14; synthetic extraction and setup-request JavaScript tests passed |
 | Four fresh inference environments | Quality, image, rig and tools imports/CUDA checks passed; all four passed `pip check` |
 | Quality PBR texture stage | 61.7 seconds including wrapper startup; 5.36 MB GLB with base-color and metallic/roughness textures; vendor stage reports 2.3 GB peak GPU allocation |
 | Reference image | Four-step, 1024-pixel PNG; 14.5 seconds including startup; 2.57 GB peak GPU allocation |

@@ -1,10 +1,31 @@
-"""Process-local Linux topology adaptation; vendor core files stay unchanged."""
+"""Process-local tool compatibility; vendor core files stay unchanged."""
 from functools import wraps
 import os
 from pathlib import Path
 
 
+class ContextWithParameters:
+    def __init__(self,original,params):
+        self._original=original
+        self.params=params
+    def __getattr__(self,name):return getattr(self._original,name)
+
+
+def install_host_context():
+    from shapecast_core.stages import engine
+    if getattr(engine.run_host,'_linux_context_compat',False):return
+    original=engine.run_host
+    @wraps(original)
+    async def run_host(ctx,stage,python,host,spec):
+        if not hasattr(ctx,'params'):ctx=ContextWithParameters(ctx,spec.get('params',{}))
+        engine._stage_timeout(ctx,stage)
+        return await original(ctx,stage,python,host,spec)
+    run_host._linux_context_compat=True
+    engine.run_host=run_host
+
+
 def install(root):
+    install_host_context()
     from shapecast_core.stages import blender
     if getattr(blender.run_blender,'_linux_topology_compat',False):return
     binary=Path(root)/'components/instant-meshes/Instant Meshes'

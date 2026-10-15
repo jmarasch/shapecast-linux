@@ -8,6 +8,8 @@ The helper copies engine sources to a private worktree before adapting them. It 
 
 Rigging uses an inference-only SDPA adapter for the point encoder to avoid materializing its large attention matrix. Training, relative-position encodings, upcasts and upstream Flash Attention retain the original implementation. Topology substitutes official native Instant Meshes for the Windows binary supplied by the original action.
 
+Touch-up calls also receive the missing context parameters needed by the original GPU timeout calculation; the vendor timeout checks and subprocess supervision remain active.
+
 Generated Hugging Face modules live in the writable cache, separate from model weights. Exporter scratch files live in the private engine workspace. These locations avoid the read-only failures found during the update investigation.
 
 ## Source packs

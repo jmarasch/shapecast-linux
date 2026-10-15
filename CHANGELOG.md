@@ -6,6 +6,7 @@
 - Native Quality, image, rigging, sharpening, Fast and topology setup; pinned environment snapshots and portable CUDA build components.
 - Licence-gated native-use model download/import with resumes, hash verification and duplicate-cache deduplication.
 - Low-memory Quality shape/paint adapters, inference-only rig attention, native Instant Meshes and preserved Python startup flags.
+- Touch-up host context compatibility preserves parameters for the original timeout checks.
 - Writable module caches and private engine workspaces.
 - Model/software update banner, opt-in verified model updates, backups and recovery.
 - Refreshed activation, hardware, setup and validation documentation. No machine-identity overrides, vendor binaries, model weights or licence data are included.
