@@ -70,6 +70,15 @@ def core_environment(root, mode):
     env.update(PYTHONPATH=os.pathsep.join([str(root/'vendor/packages'), str(REPO/'src')]),
                SHAPECAST_DATA_DIR=str(home/'data'), SHAPECAST_LIBRARY_DIR=str(home/'library'),
                SHAPECAST_RESOURCES=str(root/'vendor/resources'), SHAPECAST_CHECK_UPDATES='false')
+    env.update(SHAPECAST_LINUX_ROOT=str(root),
+               SHAPECAST_LINUX_RIG_PACK=str(root/'engines/rig'),
+               HF_MODULES_CACHE=str(root/'cache/huggingface-modules'),
+               XDG_CACHE_HOME=str(root/'cache'),
+               TORCH_EXTENSIONS_DIR=str(root/'cache/torch_extensions'),
+               TORCHINDUCTOR_CACHE_DIR=str(root/'cache/torch_inductor'),
+               CUDA_CACHE_PATH=str(root/'cache/cuda'),
+               MPLCONFIGDIR=str(root/'cache/matplotlib'),
+               PYTHONDONTWRITEBYTECODE='1')
     for key in ('SHAPECAST_PARENT_PID', 'SHAPECAST_LAUNCH_TOKEN', 'SHAPECAST_API_KEY',
                 'SHAPECAST_FAKE_STAGES', 'SHAPECAST_ALLOW_PREVIEW_GENERATION', 'PYTHONHOME'):
         env.pop(key, None)

@@ -22,3 +22,16 @@ machine-interface.json
 machine-interface.lock
 .env
 .env.*
+license.dat
+identity-migration*
+*.safetensors
+*.gguf
+*.ckpt
+*.pth
+*.glb
+*.fbx
+*.pem
+engines/
+runtimes/
+backups/
+build/

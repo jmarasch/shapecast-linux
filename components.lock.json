@@ -1,8 +1,8 @@
 {
   "format": 1,
   "shapecast": {
-    "core_version": "0.3.15",
-    "installer_sha256": "4478901fbff2a07dee1cbaf5cd14a2e33adf45917e7ae8f7ec8b8b80ad09659e",
+    "core_version": "0.3.17",
+    "installer_sha256": "3d97579f809419743f6c6cad0554b17f618b95ebe0e8ce545620aea65f061070",
     "python_minor": "3.11",
     "platform": "linux-x86_64"
   },
@@ -24,6 +24,74 @@
     "url": "https://github.com/pwilkin/trellis.cpp/releases/download/v0.8.1/trellis-cuda-linux-x64.tar.gz",
     "sha256": "5257d222a7a4becb9a125aa80b24328f91da22987777d86b312bad4ab237edae",
     "executable": "trellis-cli",
-    "experimental": true
+    "experimental": false
+  },
+  "cuda_compiler": [
+    {
+      "package": "cuda-nvcc-tools",
+      "version": "12.8.93",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-nvcc-tools/12.8.93/linux-64/cuda-nvcc-tools-12.8.93-0.conda",
+      "sha256": "06de41a38e95df52dfa1cfa331b1db12ff72b217b09f00daef3e7562842307de"
+    },
+    {
+      "package": "cuda-nvcc-dev_linux-64",
+      "version": "12.8.93",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-nvcc-dev_linux-64/12.8.93/noarch/cuda-nvcc-dev_linux-64-12.8.93-0.conda",
+      "sha256": "e0ad50b1841ad3969aa19a9358aba6a72b85c00f6f5e4abd43d911e23ae9f7df"
+    },
+    {
+      "package": "cuda-cudart-dev_linux-64",
+      "version": "12.8.90",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-cudart-dev_linux-64/12.8.90/noarch/cuda-cudart-dev_linux-64-12.8.90-0.conda",
+      "sha256": "5c0ff9456d2d0c39041ac7e1e4408508d61413517ba3162c953113b573da9d8e"
+    },
+    {
+      "package": "cuda-cccl_linux-64",
+      "version": "12.8.90",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-cccl_linux-64/12.8.90/linux-64/cuda-cccl_linux-64-12.8.90-0.conda",
+      "sha256": "cbde774232656eafafe8fc28419b8b71948f5bab46bcc9c351482624c4c99c83"
+    },
+    {
+      "package": "cuda-crt-tools",
+      "version": "12.8.93",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-crt-tools/12.8.93/linux-64/cuda-crt-tools-12.8.93-0.conda",
+      "sha256": "7b2189252fdb1892cf6ebd14058bf292ec843b261a2d45aa1d8d36d3600a94b4"
+    },
+    {
+      "package": "cuda-nvvm-tools",
+      "version": "12.8.93",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-nvvm-tools/12.8.93/linux-64/cuda-nvvm-tools-12.8.93-0.conda",
+      "sha256": "08965ff982a2b7d986a06c69223a21f5a3b115c059c382455e87a824084ea08f"
+    },
+    {
+      "package": "cuda-crt-dev_linux-64",
+      "version": "12.8.93",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-crt-dev_linux-64/12.8.93/noarch/cuda-crt-dev_linux-64-12.8.93-0.conda",
+      "sha256": "f19a2c2282ff8407af89c79420a1204c54b80884fde8d54135920357abd7572a"
+    },
+    {
+      "package": "cuda-nvvm-dev_linux-64",
+      "version": "12.8.93",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-nvvm-dev_linux-64/12.8.93/noarch/cuda-nvvm-dev_linux-64-12.8.93-0.conda",
+      "sha256": "3b353611e0b895f697142097cd0aa14e1d6aa135ce81676d5e201adfb532287f"
+    },
+    {
+      "package": "cuda-cudart-static_linux-64",
+      "version": "12.8.90",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-cudart-static_linux-64/12.8.90/noarch/cuda-cudart-static_linux-64-12.8.90-0.conda",
+      "sha256": "ac6513f0b9790695c715865b2cbc5ddfc670e98c16a8a2e5f46899da24811143"
+    },
+    {
+      "package": "cuda-cudart_linux-64",
+      "version": "12.8.90",
+      "source": "https://api.anaconda.org/download/nvidia/cuda-cudart_linux-64/12.8.90/noarch/cuda-cudart_linux-64-12.8.90-0.conda",
+      "sha256": "e4bbba74a1a3dc6d2eed22e99eec02c11bd954b19152329618a7486b779b0e6e"
+    }
+  ],
+  "instant_meshes": {
+    "source": "https://instant-meshes.s3.eu-central-1.amazonaws.com/instant-meshes-linux.zip",
+    "sha256": "0ca8b7126f0e4cef89b02bf2febb9ca3f9a27c893445696bfc660868eccb7c0c",
+    "downloaded_from_official_readme": true,
+    "url": "https://instant-meshes.s3.eu-central-1.amazonaws.com/instant-meshes-linux.zip"
   }
 }

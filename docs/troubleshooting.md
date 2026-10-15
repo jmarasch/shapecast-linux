@@ -27,7 +27,7 @@ These scripts do not launch the Wine/WebView2 shell. That approach showed blank 
 
 ## Only a box appears
 
-That is the vendor placeholder pipeline. Prompt text changes the recipe, not the placeholder geometry. Test the library, viewer and exports here; meaningful AI geometry needs the licensed native pipeline, which remains unverified.
+That is the vendor placeholder pipeline. Prompt text changes the recipe, not the placeholder geometry. Test the library, viewer and exports here; meaningful AI geometry needs your own activated licence, model packs and configured native inference runtimes. See [native setup](native-setup.md).
 
 ## A session is already open
 
@@ -47,3 +47,17 @@ Confirm the code stays the same across restarts before submitting it. A licence 
 ```
 
 The report verifies original files, local API authentication and a small set of hardware/licence status fields. It excludes licence contents, activation codes and launch tokens. Review any additional logs before posting them; application logs can include personal paths or job details.
+
+## Quality compilation fails
+
+Install GCC 13/14 and pass its C++ executable with `runtime --cxx /usr/bin/g++-13`. Quality uses a private CUDA 12.8 compiler unless you supply `--cuda-home`. On newer glibc systems, the helper detects conflicting math exception declarations and adapts only its private compiler headers, retaining the original copy. A supplied external CUDA toolkit is never patched.
+
+Runtime setup prints package/compiler output and can be rerun after fixing the error. A runtime is marked ready only after its native imports and CUDA check succeed. Changing the engine pack's source manifest requires reviewing and rebuilding the private engine copy; the helper refuses to silently replace it. Preserve that copy before removing it and its Quality readiness marker for a rebuild.
+
+## Out of GPU memory
+
+Start with lower shape detail, fewer views and 2K textures. Close other GPU-heavy applications. Quality uses CPU offload on small cards, but some jobs still exceed 8 GB. Selecting a higher hardware tier does not add memory.
+
+## Rigging or topology is unavailable
+
+Rigging needs the licensed rig pack plus `runtime --components rig`. Topology needs `runtime --components topology`, which installs official Linux Instant Meshes. Close the native session before setup, then restart it. A successful base cast does not establish that these optional components are installed.

@@ -1,4 +1,4 @@
-# Linux dependency versions used with Shapecast core 0.3.15.
+# Linux dependency versions used with Shapecast core 0.3.17.
 aiosqlite==0.22.1
 alembic==1.20.0
 annotated-doc==0.0.5

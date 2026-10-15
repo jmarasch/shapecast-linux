@@ -1,0 +1,31 @@
+#linux-toolbar { justify-content:flex-start; }
+#linux-toolbar > span { margin-right:auto; }
+#linux-toolbar #linux-updates-open { padding:3px 8px; font-size:11px; }
+#root { height:auto; }
+.lu-banner { display:flex; flex:0 0 auto; align-items:center; gap:12px; padding:10px 16px; background:#25203f; border-bottom:1px solid #61509b; color:#eee9ff; font:13px/1.5 system-ui,sans-serif; }
+.lu-banner[hidden] { display:none; }
+.lu-banner-message { flex:1; }
+.lu-button { border:1px solid #8470c0; border-radius:7px; padding:8px 12px; color:#f5f1ff; background:#453663; cursor:pointer; font:inherit; font-size:12px; white-space:nowrap; }
+.lu-button:hover { background:#574477; }
+.lu-button:focus-visible, .lu-dialog input:focus-visible { outline:2px solid #a8edda; outline-offset:3px; }
+.lu-button:disabled { opacity:.45; cursor:default; }
+.lu-secondary { background:transparent; border-color:#4b475f; }
+.lu-dialog { position:fixed; inset:0; margin:auto; width:min(780px,calc(100vw - 32px)); max-height:calc(100vh - 40px); padding:0; border:1px solid #58506f; border-radius:14px; background:#11111d; color:#e9e6f4; box-shadow:0 20px 90px #000a; font:13px/1.55 system-ui,sans-serif; }
+.lu-dialog::backdrop { background:#06060bcc; }
+.lu-dialog-header { position:sticky; top:0; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:18px; padding:16px 20px; border-bottom:1px solid #383344; background:#191724; }
+.lu-dialog h2 { margin:0; font-size:18px; font-weight:650; }
+.lu-content { padding:20px; }
+.lu-controls { display:flex; align-items:center; flex-wrap:wrap; gap:18px; }
+.lu-preference { display:flex; align-items:center; gap:8px; font-size:12px; }
+.lu-preference input { accent-color:#b4a0f0; }
+.lu-card,.lu-operation { margin-top:16px; padding:16px; border:1px solid #393448; border-radius:10px; background:#1b1827; }
+.lu-card h3 { margin:0 0 8px; font-size:15px; }
+.lu-card p,.lu-operation p { margin:6px 0 12px; }
+.lu-operation { border-color:#6a598c; }
+.lu-operation progress { width:100%; accent-color:#a58bd6; }
+.lu-operation progress::-webkit-progress-value { background:#a58bd6; }
+.lu-muted { color:#aaa4b9; font-size:12px; }
+.lu-success { color:#a2e8d0; }
+.lu-warning { color:#e2c886; }
+.lu-error { padding:12px; color:#ffc4c4; border:1px solid #93545f; border-radius:8px; }
+@media(max-width:600px) { .lu-banner { flex-wrap:wrap; gap:8px; } .lu-banner-message { flex-basis:100%; } .lu-content { padding:14px; } .lu-dialog-header { padding:12px 14px; } }

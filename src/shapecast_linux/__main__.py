@@ -20,14 +20,24 @@ def main():
     setup.add_argument('--cache-dir', type=Path)
     setup.add_argument('--wheelhouse', type=Path, help='Offline directory of pinned Linux dependency wheels')
     launch = commands.add_parser('launch', help='Open the local browser interface')
-    launch.add_argument('--mode', choices=('preview', 'native'), default='preview')
+    launch.add_argument('--mode', choices=('preview', 'native'), default='native')
     launch.add_argument('--restart', action='store_true')
     launch.add_argument('--no-browser', action='store_true')
     doctor = commands.add_parser('doctor', help='Check private runtime, API, Blender and license status')
     doctor.add_argument('--mode', choices=('preview', 'native'), default='native')
-    runtime = commands.add_parser('runtime', help='Install optional experimental CUDA runtime')
-    runtime.add_argument('--models-dir', type=Path)
+    runtime = commands.add_parser('runtime', help='Install native inference environments')
+    runtime.add_argument('--engine',choices=('quality','fast'),help='Select the default mesh engine after setup')
+    runtime.add_argument('--components', default='all', help='quality,image,rig,tools,fast,topology or all')
+    runtime.add_argument('--wheelhouse', type=Path)
+    runtime.add_argument('--cuda-home', type=Path)
+    runtime.add_argument('--cxx', type=Path)
+    runtime.add_argument('--jobs', type=int, default=2)
     runtime.add_argument('--cache-dir', type=Path)
+    models=commands.add_parser('models',help='Download or import licensed model/engine files')
+    models.add_argument('--packs',default='models,engine',help='models,engine,rig,engine2 (comma-separated)')
+    models.add_argument('--source',type=Path,help='Existing vendor packs folder or one pack with pack.json')
+    update=commands.add_parser('update',help='Apply a reviewed Windows installer without replacing profiles')
+    update.add_argument('--installer',type=Path,required=True)
     args = parser.parse_args()
     try:
         supported_platform()
@@ -35,8 +45,16 @@ def main():
             from .installer import install
             install(args)
         elif args.command == 'runtime':
-            from .installer import install_cuda
-            install_cuda(args)
+            from .native import install_runtimes
+            install_runtimes(args)
+        elif args.command == 'update':
+            from .installer import update_vendor
+            update_vendor(args)
+        elif args.command == 'models':
+            root,_=read_install(args.install_root)
+            argv=[root/'venv/bin/python','-m','shapecast_linux.models','--install-root',root,'--packs',args.packs]
+            if args.source:argv+=['--source',args.source.expanduser().resolve()]
+            return subprocess.call([str(a) for a in argv],env=core_environment(root,'native'))
         else:
             root, _ = read_install(args.install_root)
             if args.command == 'launch':

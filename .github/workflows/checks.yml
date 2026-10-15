@@ -16,4 +16,6 @@ jobs:
       - name: Python helper tests
         run: PYTHONPATH=src python -m unittest discover -s tests -v
       - name: Synthetic frontend extraction
-        run: node tests/test_frontend.cjs
+        run: |
+          node tests/test_frontend.cjs
+          node tests/test_setup.cjs

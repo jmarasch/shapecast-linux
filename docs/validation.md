@@ -1,33 +1,54 @@
-# Validation and limitations
+# Validation and limits
 
-Initial compatibility investigation: 2026-10-10.
+This is an experimental community port. Evidence below distinguishes development runs from clean portable-helper checks. A placeholder box is never evidence of AI generation.
 
-The initial native installation ran the unmodified Shapecast 0.3.15 core with native Linux Python 3.11.17. All 48 core files matched the installer integrity manifest. The original shell's 60 embedded Brotli web assets were recovered privately and checked for modification. Our adapter supplies the local API connection at page load and normalizes JSON responses for the browser interface.
+## Development runtime
 
-On Ubuntu 26.04.1 x86-64 with Blender 4.5.14 LTS:
+The maintainer's Ubuntu/Kubuntu 26.04.1 x86-64 machine has an Intel i9-12900K, 32 GB RAM and an NVIDIA RTX 4060 Ti with 8 GB VRAM. Recent tests use NVIDIA driver 595.99.02, CPython 3.11.17 and Blender 4.5.14 LTS.
 
-- Unlicensed placeholder jobs completed through concept selection and asset creation.
-- The original library and 3D viewer displayed the sample model.
-- Blender generated actual GLB, OBJ and STL exports from the sample; the STL was checked as a 12-triangle closed cube.
-- Real generation with preview permission enabled but fake stages disabled was rejected with `license_required`.
-- Requests without a launch token were rejected; foreign origins were rejected by the original API.
+The native development environment has completed real reference-image generation, Quality shape and PBR texture generation, Fast image-to-3D, UniRig rigging, 4K sharpening, topology rebuilding, and Blender exports. The vendor core and browser interface remain unmodified. Native adaptations run around the core and in private copies of engine sources. Some high-detail jobs exhausted this 8 GB GPU; successful smaller jobs do not guarantee every preset fits.
 
-The host had an RTX 4060 Ti (8 GB), NVIDIA driver 595.91.07, Intel i9-12900K and 32 GB RAM. The optional native CUDA runtime recognized the GPU in the desktop session. Some sandboxed diagnostics could not see the host NVIDIA driver, so diagnostic visibility alone was not used as proof of a broken host driver.
+The 0.3.17 update retained all 48 original core files and all 60 original embedded web assets. It passed a real GPU PBR texture/export run on an existing 20,000-face mesh with 2K textures, approximately 58 seconds and 2.3 GB peak allocated GPU memory. The new head-only reference projection and projection-disabled path were checked separately. This is a texture-stage regression check, not a new complete cast across every subject/preset.
 
-The public helper has separate source-only tests for archive traversal, download checksums, original-file integrity, private session state, profile separation and synthetic PE/Brotli extraction. CI does not include or run Shapecast's commercial application. The opt-in integration check requires your own local installation and creates a placeholder asset in its preview library.
+## Portable helper 0.2.0
 
-Before initial publication, the portable helper passed 11 Python tests and its synthetic frontend tests on Python 3.14; the Python tests also passed on 3.11. Two fresh private installations passed: one using existing Python/Blender executables, and one using the pinned component archives from a verified local cache. Both installed the pinned dependencies into new environments. The fresh preview installation completed a browser job and passed API, GLB/OBJ/STL export, authentication, Host, Origin and traversal checks. Real generation without a licence was again rejected, even with the preview permission set. The archive checksums and extraction were tested locally; live re-downloading those large archives was not repeated.
+The helper was verified on 2026-10-14 in a newly created installation, independently of the development launcher. Its installer extracts the purchased, SHA256-pinned 0.3.17 Windows package, verifies all 48 core files and 60 UI assets, installs a new core environment, and installs private Python/Blender components from checksum-verified archives. Separate native runtime environments are built from the pinned dependency snapshots and the owner's engine pack sources.
 
-The 2026-10-12 machine-identity fix passed 16 helper tests on Python 3.14 and 3.11. Six fresh processes using the legacy native runtime and three full portable native server starts returned the same code derived from a verified physical Ethernet adapter. Tests also check rejection of synthetic, virtual and randomized sources, pinning across adapter additions, and refusal to silently change the identifier when hardware changes. This validates fingerprint stability, not successful licence activation or AI generation.
+Source-only tests exercise archive/download integrity, synthetic frontend extraction, stable physical-adapter selection, profile separation, API/browser authentication, licensed-download gating, update staging, hash-based change detection, interrupted-update recovery, and rollback. They contain no commercial software or models. GitHub CI runs these checks; it does not have a licence, GPU or commercial installation.
 
-The maintainer subsequently reported the same corrected request code. Licence activation for that corrected identity is still pending verification; no successful licensed generation is claimed. Contributor roles, including the AI coding assistance used in developing this helper, are recorded in [CONTRIBUTORS.md](../CONTRIBUTORS.md).
+The opt-in preview integration test creates its own placeholder and verifies GLB download, Blender GLB/OBJ/STL exports, a watertight mesh, and rejection of unauthenticated requests, foreign Host/Origin headers and traversal requests. Preview data remains separate from native casts.
 
-## Still to verify
+The clean installation passed these additional checks:
 
-- Legitimate licence activation and licensed generation on Linux.
-- Complete model downloads, compatible weights and full text/image pipelines.
-- Rigging, animation and the remaining export formats.
-- Other distributions, GPU models and driver versions.
-- Product updates beyond the exact tested Windows installer.
+| Check | Observed result |
+| --- | --- |
+| Source checks | 46 Python tests passed on Python 3.11 and 3.14; synthetic extraction and setup-request JavaScript tests passed |
+| Four fresh inference environments | Quality, image, rig and tools imports/CUDA checks passed; all four passed `pip check` |
+| Quality PBR texture stage | 61.7 seconds including wrapper startup; 5.36 MB GLB with base-color and metallic/roughness textures; vendor stage reports 2.3 GB peak GPU allocation |
+| Reference image | Four-step, 1024-pixel PNG; 14.5 seconds including startup; 2.57 GB peak GPU allocation |
+| Rigging | 40.3 seconds; GLB with 27 joints, a skin and joint/weight vertex attributes |
+| Fast and topology | Official pinned binaries installed; Fast backend detected the RTX GPU; native Instant Meshes started |
+| Preview | Job, GLB download, Blender GLB/OBJ/STL exports and watertight geometry passed |
+| Licence enforcement | Model setup and real native casting rejected without a valid licence; no private key or identity migration copied |
+| Identity | Original-core request code identical across three fresh processes; value omitted |
+| Updates | Startup check ran automatically; original server lifespan preserved; update API rejects unauthenticated calls |
+| Reviewed software update | Real 0.3.17 installer extracted and applied to the disposable installation; previous vendor files/configuration/databases retained in a private checkpoint |
+| Existing installation | All 165 recorded baseline files remained unchanged |
 
-Successful placeholders do not establish that any item above works. Contributions should identify whether evidence comes from a real run, a diagnostic check or an inference.
+Weights were reused from the maintainer's purchased packs and mounted read-only during inference checks; they were not redistributed or fetched through an unlicensed account. External model symlinks used only for this validation are deliberately rejected as update destinations. Full fresh model-download and vendor activation by another owner remain outstanding. The newly built GPU stages above are real inference checks, not an end-to-end activated portable-server cast.
+
+## Licence boundary
+
+The maintainer's original licence was issued for an earlier unstable request code. Private troubleshooting of that migration is not included here. Runtime/GPU validation using the maintainer's purchased files does **not** prove that Shapecast will issue every other owner a Linux licence.
+
+The public helper uses only its normal, stable physical-machine identity and Shapecast's original signature/machine checks. It contains no historical-code alias, signature bypass or preset licence. Obtain a vendor-issued licence for the request code displayed by this installation. Model download/import and model-update application are licence-gated. Unlicensed real casts must be rejected; explicit vendor placeholder mode remains available separately.
+
+## Still requiring community/vendor validation
+
+- Fresh licence issuance and a complete activation-to-download-to-generation walkthrough by another owner.
+- Other Linux distributions, GPU architectures, driver versions and memory sizes.
+- Every generation preset, animation workflow and export format.
+- Future application/model code revisions beyond the reviewed installer and guarded adaptations.
+- AMD, Intel GPUs and ARM Linux are not supported by this release.
+
+Report the helper commit, core version, GPU/driver and exact stage, and identify whether evidence is a real output, an import/diagnostic check or an inference. Review logs before sharing them. Contributor roles are recorded in [CONTRIBUTORS.md](../CONTRIBUTORS.md).

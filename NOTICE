@@ -8,6 +8,7 @@ model files, licenses, or any separately downloaded runtime.
 Users provide their own purchased installer. Application files are extracted only
 to each user's private installation directory and retain their original licensing.
 
-Python-build-standalone, Blender, trellis.cpp and Python dependencies are obtained
-separately from the sources recorded in components.lock.json and requirements-core.txt.
+Python-build-standalone, Blender, trellis.cpp, Instant Meshes, NVIDIA compiler
+packages and Python dependencies are obtained separately from sources recorded in
+components.lock.json, requirements-core.txt and requirements/*.txt.
 Their respective license notices remain applicable to those downloads.

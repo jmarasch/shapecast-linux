@@ -31,18 +31,20 @@ class Page(BaseHTTPRequestHandler):
             return
         if path == '/setup':
             html = (WEB/'setup.html').read_bytes()
-            self.reply(html, 'text/html; charset=utf-8', "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src http://127.0.0.1:*; form-action 'none'; frame-ancestors 'none'; base-uri 'none'")
+            self.reply(html, 'text/html; charset=utf-8', "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' http://127.0.0.1:*; form-action 'none'; frame-ancestors 'none'; base-uri 'none'")
             return
         if path in ('/', '/index.html'):
             html = (self.server.assets/'index.html').read_text()
-            html = html.replace('<title>Shapecast</title>', '<title>Shapecast — Linux</title><script src="/linux-bridge.js"></script><link rel="stylesheet" href="/linux-shell.css">')
-            html = html.replace('<body>', '<body><nav id="linux-toolbar" aria-label="Linux runtime"><span>Linux runtime · Preview available · License and models needed for AI generation</span><a id="linux-setup" href="/setup">Linux setup</a></nav>')
+            html = html.replace('<title>Shapecast</title>', '<title>Shapecast — Linux</title><script src="/linux-bridge.js"></script><link rel="stylesheet" href="/linux-shell.css"><link rel="stylesheet" href="/linux-updates.css">')
+            if not self.server.preview_mode:
+                html=html.replace('</head>','<script src="/linux-updates.js" defer></script></head>')
+            html = html.replace('<body>', '<body><nav id="linux-toolbar" aria-label="Linux runtime"><span>Native Linux runtime · Your vendor licence and models required</span><a id="linux-setup" href="/setup">Linux setup</a></nav>')
             if self.server.preview_mode:
-                html = html.replace('Linux runtime · Preview available · License and models needed for AI generation', 'Placeholder test profile · Results are sample models, not AI output')
+                html = html.replace('Native Linux runtime · Your vendor licence and models required', 'Placeholder test profile · Results are sample models, not AI output')
                 html = html.replace('<a id="linux-setup"', '<a id="linux-preview" href="/preview">Test previews</a><a id="linux-setup"')
             self.reply(html.encode(), 'text/html; charset=utf-8', CSP)
             return
-        if path in ('/linux-bridge.js', '/linux-shell.css'):
+        if path in ('/linux-bridge.js', '/linux-shell.css','/linux-updates.js','/linux-updates.css'):
             file = WEB/path[1:]
         elif path in self.server.asset_paths:
             file = (self.server.assets/path[1:]).resolve()

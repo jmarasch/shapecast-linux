@@ -14,11 +14,12 @@ from .common import LOCK, REPO, private_json, relative_path, sha256, supported_p
 
 
 def run(args, **kwargs):
-    result = subprocess.run([str(a) for a in args], text=True, capture_output=True, **kwargs)
+    live=kwargs.pop('live',False)
+    result = subprocess.run([str(a) for a in args], text=True, capture_output=not live, **kwargs)
     if result.returncode:
-        detail = (result.stderr or result.stdout).strip()[-3000:]
+        detail = (result.stderr or result.stdout or 'See the command output above.').strip()[-3000:]
         raise ValueError('Command failed: '+str(args[0])+'\n'+detail)
-    return result.stdout
+    return result.stdout or ''
 
 
 def download(spec, cache):
@@ -31,7 +32,7 @@ def download(spec, cache):
     partial = target.with_name(target.name+'.partial')
     print('Downloading '+spec['url'].rsplit('/', 1)[1]+'…', flush=True)
     try:
-        request = urllib.request.Request(spec['url'], headers={'User-Agent':'shapecast-linux/0.1.0'})
+        request = urllib.request.Request(spec['url'], headers={'User-Agent':'shapecast-linux/0.2.0'})
         with urllib.request.urlopen(request, timeout=60) as response, partial.open('wb') as out:
             shutil.copyfileobj(response, out, length=1024*1024)
         if sha256(partial) != spec['sha256']:
@@ -122,7 +123,7 @@ def install(args):
     if not installer.is_file():
         raise ValueError('The purchased Windows installer was not found.')
     if sha256(installer) != LOCK['shapecast']['installer_sha256']:
-        raise ValueError('This is not the tested Shapecast 0.3.15 Windows installer. A new version needs a compatibility update; no files were extracted.')
+        raise ValueError('This is not the tested Shapecast '+LOCK['shapecast']['core_version']+' Windows installer. A new version needs a compatibility update; no files were extracted.')
     if any((root/name).exists() for name in ('install.json','vendor','venv','profiles')):
         raise ValueError('An installation already exists here. Choose another --install-root; existing data will not be overwritten.')
     node = shutil.which('node')
@@ -133,18 +134,7 @@ def install(args):
     completed = []
     try:
         with tempfile.TemporaryDirectory(prefix='.extract-',dir=root) as stage:
-            source = extract_installer(installer,Path(stage)/'installer')
-            vendor = Path(stage)/'vendor'
-            packages = vendor/'packages';packages.mkdir(parents=True)
-            original = source/'core-runtime/python/Lib/site-packages'
-            dist = original/'shapecast_core-0.3.15.dist-info'
-            if not dist.is_dir():
-                raise ValueError('The installer core version does not match this release.')
-            for name in ('shapecast_core',dist.name,'pipeline'):
-                shutil.copytree(original/name,packages/name)
-            shutil.copy2(source/'core-runtime/integrity.json',vendor/'integrity.json')
-            shutil.copytree(source/'core-runtime/resources',vendor/'resources')
-            run([node,REPO/'scripts/extract_frontend.cjs',source/'shapecast-shell.exe',vendor/'ui'],timeout=90)
+            vendor=prepare_vendor(installer,Path(stage),node)
             shutil.move(str(vendor),str(root/'vendor'));completed.append(root/'vendor')
         core_count,asset_count=verify_vendor(root)
         print(f'Verified {core_count} commercial core files and {asset_count} private UI assets.',flush=True)
@@ -177,7 +167,7 @@ def install(args):
             if mode=='preview':settings['multiview']=False
             private_json(home/'data/settings.json',settings)
         private_json(root/'install.json',{'schema':1,'core_version':LOCK['shapecast']['core_version'],'installer_sha256':sha256(installer),'blender':str(blender) if blender else None,'cuda':None})
-        print('Installation ready. Run: ./shapecast-linux launch --mode preview',flush=True)
+        print('Installation ready. Run: ./shapecast-linux launch --mode native; activate your own licence, then close the app and set up models/runtimes.',flush=True)
         print('Install directory: '+str(root),flush=True)
     except Exception:
         for path in reversed(completed):
@@ -185,18 +175,53 @@ def install(args):
         raise
 
 
-def install_cuda(args):
+def prepare_vendor(installer,stage,node):
+    source=extract_installer(installer,Path(stage)/'installer')
+    vendor=Path(stage)/'vendor'
+    packages=vendor/'packages';packages.mkdir(parents=True)
+    original=source/'core-runtime/python/Lib/site-packages'
+    dist=original/('shapecast_core-'+LOCK['shapecast']['core_version']+'.dist-info')
+    if not dist.is_dir():raise ValueError('Installer core version does not match the reviewed release.')
+    for name in ('shapecast_core',dist.name,'pipeline'):shutil.copytree(original/name,packages/name)
+    shutil.copy2(source/'core-runtime/integrity.json',vendor/'integrity.json')
+    shutil.copytree(source/'core-runtime/resources',vendor/'resources')
+    run([node,REPO/'scripts/extract_frontend.cjs',source/'shapecast-shell.exe',vendor/'ui'],timeout=90)
+    verify_vendor(Path(stage))
+    return vendor
+
+
+def update_vendor(args):
+    import sqlite3
+    import time
     from .common import read_install,profile
+    from .session_control import existing_url,matching_servers
     root,config=read_install(args.install_root)
-    cache=args.cache_dir.expanduser().resolve() if args.cache_dir else root/'cache'
-    print('Installing an experimental native CUDA runtime. AI generation is not yet verified.',flush=True)
-    executable=component('cuda',root,cache)
-    config['cuda']=str(executable)
-    private_json(root/'install.json',config)
-    path=profile(root,'native')/'data/settings.json'
-    settings=json.loads(path.read_text())
-    models=args.models_dir.expanduser().resolve() if args.models_dir else root/'models'
-    models.mkdir(parents=True,exist_ok=True)
-    settings.update(mesh_engine='engine2',engine2_exe=str(executable),engine2_models_dir=str(models))
-    private_json(path,settings)
-    print('Runtime configured. A valid Shapecast license and compatible model files are still required.',flush=True)
+    if any(matching_servers(root,mode) or existing_url(profile(root,mode)) for mode in ('native','preview')):
+        raise ValueError('Close native and preview sessions before applying a software update.')
+    installer=args.installer.expanduser().resolve()
+    if not installer.is_file() or sha256(installer)!=LOCK['shapecast']['installer_sha256']:
+        raise ValueError('Only the installer reviewed in components.lock.json can be applied. Update the helper first.')
+    node=shutil.which('node')
+    if not node:raise ValueError('Node.js is required for interface extraction.')
+    backup=root/'backups'/('before-'+LOCK['shapecast']['core_version']+'-'+str(time.time_ns()))
+    backup.mkdir(parents=True,mode=0o700)
+    private_json(backup/'install.json',config)
+    for mode in ('native','preview'):
+        home=profile(root,mode);dest=backup/mode;dest.mkdir(mode=0o700)
+        for name in ('settings.json','license.dat'):
+            if (home/'data'/name).is_file():shutil.copy2(home/'data'/name,dest/name)
+        db=home/'data/library.db'
+        if db.is_file():
+            with sqlite3.connect('file:'+str(db)+'?mode=ro',uri=True) as source:
+                with sqlite3.connect(dest/'library.db') as target:source.backup(target)
+    with tempfile.TemporaryDirectory(prefix='.update-',dir=root) as stage:
+        vendor=prepare_vendor(installer,Path(stage),node)
+        (root/'vendor').rename(backup/'vendor')
+        try:
+            shutil.move(str(vendor),str(root/'vendor'))
+            config.update(core_version=LOCK['shapecast']['core_version'],installer_sha256=sha256(installer))
+            private_json(root/'install.json',config)
+        except BaseException:
+            if (root/'vendor').exists():shutil.rmtree(root/'vendor')
+            (backup/'vendor').rename(root/'vendor');private_json(root/'install.json',json.loads((backup/'install.json').read_text()));raise
+    print('Software updated. Profiles and native runtimes preserved. Rollback checkpoint: '+str(backup),flush=True)

@@ -25,7 +25,7 @@ def main():
     settings = profile_settings(Settings.load(), root, args.mode)
     report = {'platform': platform.system(), 'python': platform.python_version(),
               'core_version': config['core_version'], 'core_files_verified': core_count,
-              'ui_assets_verified': asset_count, 'profile': args.mode, 'real_ai_generation_verified': False}
+              'ui_assets_verified': asset_count, 'profile': args.mode, 'runs_generation': False}
     report['machine_id_source'] = 'Verified permanent physical network adapter'
     with TestClient(create_app(settings=settings, token=token)) as client:
         headers = {'Authorization': 'Bearer '+token}
@@ -48,6 +48,7 @@ def main():
         report['blender_available'] = True
     except (OSError, ValueError):
         report['blender_available'] = False
+    report['native_runtimes']={name:(root/'runtimes'/name/'linux-runtime-ready.json').is_file() for name in ('quality','image','rig','tools')}
     report['cuda_runtime_installed'] = bool(config.get('cuda'))
     print(json.dumps(report, indent=2))
 

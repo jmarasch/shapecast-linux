@@ -12,6 +12,8 @@ assignees: ''
 - Shapecast core/installer version:
 - GPU and NVIDIA driver:
 - Preview or native profile:
+- Selected engine and installed runtime components:
+- Failed stage / texture or shape settings:
 
 **What happened**
 Describe the step, expected result and actual result. Was the output a placeholder or real AI generation?

@@ -1,116 +1,120 @@
 # shapecast-linux
 
-An unofficial community helper for running a purchased copy of **Shapecast 0.3.15** natively on Linux x86-64, using its original core and web interface in your browser.
+Run your **purchased Shapecast 0.3.17** natively on Linux x86-64, using the original core and interface in a local browser. This unofficial helper installs native NVIDIA inference environments for Quality, Fast, reference images, rigging, sharpening and topology tools. Wine and Flatpak are not required.
 
-**Current status: previews and basic exports work; real AI generation is experimental and has not been verified.** Preview jobs produce a sample box regardless of the prompt. They test the library, viewer and export workflow; they do not generate AI geometry.
+**You need your own Shapecast installer, a vendor-issued licence for this Linux machine, and the licensed model packs.** This repository contains compatibility code only. It does not contain Shapecast, its interface, models, licences, activation overrides or private machine identifiers. Linux is not officially supported by Shapecast; vendor licence issuance is outside this project's control.
 
-The corrected Linux request code has been confirmed on the test machine after fixing an unstable identifier from the bundled Python runtime. Licence activation against the corrected identity and licensed AI generation remain unverified. The [activation notes](docs/ai-generation.md) explain the shorter Linux code and the stability fix.
+## Tested scope
 
-This project is independent of [Shapecast](https://shapecast.io/). It contains our compatibility scripts and browser adapter. Each user supplies their own Windows installer. Shapecast's application files, interface assets, licenses and models are not distributed here.
+The native components have completed real image generation, Quality shape/texturing, Fast image-to-3D, rigging, 4K sharpening, topology rebuilding and Blender exports on an RTX 4060 Ti (8 GB). The 0.3.17 update passed GPU texturing/export, head-only projection and core/API checks. These results come from one Ubuntu x86-64 machine; other GPUs/distributions need testing. Some large or maximum-detail jobs can still exceed an 8 GB card's memory.
 
-## What has been tested
+The portable helper is validated separately from the original development environment. See [validation](docs/validation.md) for the exact checks and limits. Placeholder mode still creates a box; it is only a workflow test.
 
-| Feature | Status |
-| --- | --- |
-| Original Python core on native Linux | Working; 48 original files checked against the installer manifest |
-| Original interface in a Linux browser | Working; privately extracted assets remain unchanged |
-| Vendor placeholder pipeline without activation | Working in a separate preview profile |
-| Library and 3D viewer | Working with the placeholder model |
-| GLB, OBJ and STL exports through native Blender | Working with the placeholder model |
-| Licence checks for real generation | Preserved; unlicensed real jobs are rejected |
-| Native CUDA runtime | Optional runtime can be configured; inference is unverified |
-| Licensed AI generation, rigging, other export formats | Not verified |
+## Requirements
 
-Local validation used Ubuntu 26.04.1 x86-64, Python 3.11.17, Blender 4.5.14 LTS and an RTX 4060 Ti with 8 GB VRAM. This is one tested machine, not a promise of compatibility with every distribution. See [validation notes](docs/validation.md).
+- Linux x86-64; tested on Ubuntu/Kubuntu 26.04.1.
+- A real physical network adapter with its permanent factory address available for a stable licence identity; VM/bridge/random fallback identities are rejected.
+- NVIDIA RTX-class GPU with at least 8 GB VRAM; 12–24 GB gives more room.
+- A recent NVIDIA driver: the Quality/image/rig environments use CUDA 12.8 wheels; the optional pinned Fast runtime uses CUDA 13.1. The tested driver is 595.99.02. The driver must support the selected CUDA runtime.
+- 16 GB RAM minimum, 32 GB recommended; allow **180 GB free** for full model packs, separate Python environments and build/download caches. Space varies by components and deduplication.
+- Bash, Python 3.10+, Node.js 18+, 7-Zip, a C++ compiler compatible with CUDA 12.8 (GCC 13 recommended), and Blender 4.2+.
 
-## Quick start
-
-You need a Linux x86-64 machine, Bash, Python 3.10 or newer for the setup helper, Node.js 18 or newer for asset extraction, and `7z` or `7zz`. On recent Ubuntu/Debian releases, install the prerequisites using your package manager:
+On recent Ubuntu/Debian systems:
 
 ```bash
-sudo apt install git python3 nodejs 7zip
+sudo apt install git python3 nodejs 7zip g++-13 libgl1 libegl1 libxrender1 libxi6 libxrandr2 libxinerama1 libxcursor1
 ```
 
-Some older distributions call the 7-Zip package `p7zip-full`. The installer checks prerequisites before proceeding. Wine and Flatpak are unnecessary.
+Older distributions may use `p7zip-full` and a different supported GCC package. The helper can download a private, checksum-verified Blender and Python runtime. For Quality it can also install a pinned private CUDA compiler; it does not replace your system CUDA toolkit or GPU driver.
 
-Clone or download this repository, open a terminal inside its folder, and use your purchased installer:
+## Install and activate
 
 ```bash
 git clone https://github.com/jmarasch/shapecast-linux.git
 cd shapecast-linux
 ./shapecast-linux install --installer "$HOME/Downloads/Shapecast-Setup.exe"
-./shapecast-linux launch --mode preview
+./shapecast-linux launch --mode native
 ```
 
-The setup downloads a checksum-verified standalone Python 3.11 runtime, installs the pinned Linux dependencies, and uses a suitable system Blender or downloads a checksum-verified portable Blender. It does not run the Windows installer. Allow a few GB of space for the runtime, Blender and cached downloads; AI models require substantially more space separately.
-
-The tested installer is identified by this SHA-256:
+The Windows installer is extracted, never executed. Only the reviewed 0.3.17 installer is accepted:
 
 ```text
-4478901fbff2a07dee1cbaf5cd14a2e33adf45917e7ae8f7ec8b8b80ad09659e
+3d97579f809419743f6c6cad0554b17f618b95ebe0e8ce545620aea65f061070
 ```
 
-A different installer is rejected before extraction. New product versions need a compatibility update rather than removing this check.
+Open **Linux setup**, copy the stable request code and obtain a licence from Shapecast. Apply the emailed licence there, or use the original online activation controls if the vendor service is available. A Windows/macOS request code is different. The Linux code may be shorter because Windows/macOS-only identifiers are absent; explain that you are using Linux when contacting the vendor. The helper never invents those missing identifiers or impersonates a previously licensed machine.
 
-## Try previews and exports
+**Stop the native session with Ctrl+C before installing models or runtimes.**
 
-The browser opens the **Placeholder tests** page. Create a test, choose its sample concept, then open the asset in the original library. Try an export preset there, or download the sample GLB directly from the test page. A box is the expected result, even if you describe something else.
+## Install models and native runtimes
 
-Keep the terminal open while using Shapecast. Press Ctrl+C to stop. Running the same launch command again reopens the existing session. To restart just that profile:
-
-```bash
-./shapecast-linux launch --mode preview --restart
-```
-
-Preview data and the normal library live in separate folders. The preview session uses the core's own `fake_stages` and `allow_preview_generation` settings. The native session does not grant the preview permission to real jobs.
-
-## Open the normal interface
+For the full setup after activation:
 
 ```bash
+./shapecast-linux models --packs models,engine,rig,engine2
+./shapecast-linux runtime --components all --engine quality
 ./shapecast-linux launch --mode native
 ./shapecast-linux doctor
 ```
 
-Use **Linux setup** in the browser to inspect the licence, Blender and model status. Apply your legitimate licence through Shapecast's normal activation workflow. Activation is never performed automatically by installation or diagnostics. See [activation and experimental AI setup](docs/ai-generation.md).
+Model operations require a valid local vendor licence. They fetch the vendor's manifests, resume downloads, verify sizes/SHA256, and deduplicate identical cache blobs. They select model files and engine sources without installing Windows Python or DLLs. Model weights are not sourced from this GitHub repository.
 
-## Where files go
-
-The default private installation is `$XDG_DATA_HOME/shapecast-linux`, or `~/.local/share/shapecast-linux` when that variable is unset:
-
-```text
-vendor/                Your privately extracted core, resources and interface
-venv/                  Linux Python dependencies
-components/            Downloaded Python, Blender and optional CUDA runtime
-profiles/preview/      Placeholder test settings, database and library
-profiles/native/       Normal settings, licence, database and library
-machine-interface.json Private selector for a verified physical network adapter
-cache/                 Verified component downloads and pip cache
-install.json           Local component configuration
-```
-
-Keep the repository folder as well; the launcher loads the compatibility code from it. Use `--install-root` **before** the command to choose a different private installation:
+If you already downloaded the vendor packs, import from the parent folder containing `models/pack.json`, `engine/pack.json`, and so on:
 
 ```bash
-./shapecast-linux --install-root "$HOME/Apps/shapecast-data" install --installer "$HOME/Downloads/Shapecast-Setup.exe"
-./shapecast-linux --install-root "$HOME/Apps/shapecast-data" launch --mode preview
+./shapecast-linux models --packs models,engine,rig,engine2 --source "/path/to/vendor/packs"
 ```
 
-Installation refuses to overwrite an existing runtime or profiles. Back up your libraries and licence before changing or removing an installation. Removing this repository alone does not remove your private data.
+For a smaller Quality-only setup:
 
-The helper verifies and remembers a permanent physical network adapter before the core generates activation codes. This avoids a changing synthetic address returned by the bundled Python runtime on the test host. It does not replace commercial hashing or signature checks. If the selected hardware address changes or cannot be verified, startup stops rather than silently generating a different activation code.
+```bash
+./shapecast-linux models --packs models,engine
+./shapecast-linux runtime --components quality,image --engine quality
+```
 
-## More help
+For Fast generation, add `engine2` models and the `fast` runtime. Rigging needs the `rig` pack and `rig` runtime. The `tools` runtime supplies standalone sharpening when using Fast; Quality includes sharpening. `topology` installs official Linux Instant Meshes. All components are optional, and setup reports missing requirements instead of pretending that directory existence proves inference works.
 
-- [Troubleshooting and existing Python/Blender options](docs/troubleshooting.md)
-- [Activation and experimental AI generation](docs/ai-generation.md)
-- [Validation notes and remaining work](docs/validation.md)
-- [Contributing](CONTRIBUTING.md)
+Quality builds two native extensions. Setup chooses GCC 13/14 when present; override with `--cxx /usr/bin/g++-13`. You can supply an existing CUDA 12.8 toolkit with `--cuda-home /path/to/cuda`, limit compilation with `--jobs 2`, or use a prepared Linux `--wheelhouse`. See [native setup details](docs/native-setup.md).
 
-## Contributors
+## Everyday use and updates
 
-- **Jakob ([jmarasch](https://github.com/jmarasch))** — project direction, Linux hardware testing, troubleshooting reports, repository maintenance and release decisions.
-- **OpenAI Codex** — AI coding assistance with the compatibility investigation, helper implementation, tests and documentation.
+Keep the launcher terminal open. Ctrl+C stops that profile. Running the same command again reopens the existing session; `launch --mode native --restart` restarts that profile only. Preview and native data are separate.
 
-This is an AI-assisted project directed and tested by its human maintainer. See [contributor credits](CONTRIBUTORS.md) for the scope of the contributions.
+The **Updates** button/banner checks software and model manifests at startup and every six hours. Downloads and model installation are opt-in; model application waits for an idle queue, verifies hashes, and keeps a rollback backup. Checks do not send your licence, machine ID or library.
 
-The MIT licence applies to this helper's source only. Shapecast and downloaded components retain their own licences; see [NOTICE](NOTICE).
+Software installers are staged, not run. For a version supported by the current helper, close both profiles and apply your installer with:
+
+```bash
+git pull --ff-only
+./shapecast-linux update --installer "/path/to/Shapecast-Setup.exe"
+```
+
+This backs up the previous vendor files, configuration and databases, then replaces the reviewed core/interface without replacing your libraries or native runtimes. Unknown installer hashes remain blocked until reviewed. Updating model code may also need a Linux compatibility update. See [updates and recovery](docs/updates.md).
+
+## Files and privacy
+
+Default installation: `$XDG_DATA_HOME/shapecast-linux`, or `~/.local/share/shapecast-linux`.
+
+```text
+vendor/                 Privately extracted original core/resources/interface
+venv/                   Native core dependencies
+runtimes/               Separate Quality, image, rigging and tools environments
+engines/                Private engine workspaces and Linux adapters
+components/             Python, Blender, Fast binary and Instant Meshes
+profiles/native/        Your settings, licence, database, library and pack files
+profiles/preview/       Separate placeholder tests
+models/fast/            Vendor GGUF weights for Fast
+cache/                  Downloads, pip, CUDA and generated Python module caches
+backups/                Reviewed software-update rollback checkpoints
+machine-interface.json  Local stable physical-adapter selector
+```
+
+Use `--install-root /path/to/data` **before** each command for another location. Keep the repository folder: the launcher loads its helper code. Installation refuses to overwrite an existing installation; use the update command for reviewed software updates.
+
+Licence checks, product signatures and the original core remain intact. Do not post licence keys, request codes, order information or launch-token URLs in issues. See [activation](docs/ai-generation.md), [troubleshooting](docs/troubleshooting.md), [validation](docs/validation.md), and [contributing](CONTRIBUTING.md).
+
+## Contributors and licensing
+
+**Jakob ([jmarasch](https://github.com/jmarasch))** — project direction, hardware testing, troubleshooting and maintenance. **OpenAI Codex** — AI coding assistance with implementation, tests and documentation. See [CONTRIBUTORS.md](CONTRIBUTORS.md).
+
+This is independent of [Shapecast](https://shapecast.io/). The MIT licence covers this helper's original code only; downloaded applications, model packs and third-party components retain their own licences. See [NOTICE](NOTICE).

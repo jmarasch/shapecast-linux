@@ -20,7 +20,7 @@ def profile_settings(settings, root, mode):
     for key, folder in (('data_dir', 'data'), ('library_dir', 'library')):
         if Path(getattr(settings, key)).resolve() != (home/folder).resolve():
             raise ValueError('This launcher requires its own separate profile folders.')
-    changes = {'allow_preview_generation': mode == 'preview'}
+    changes = {'allow_preview_generation': mode == 'preview','fake_stages':mode == 'preview'}
     if mode == 'preview':
         changes.update(fake_stages=True, multiview=False)
     return settings.model_copy(update=changes)
@@ -46,9 +46,19 @@ def main():
     from shapecast_core.config import Settings
     from shapecast_core.stages.engine2 import missing_weights
 
+    native={}
+    if args.mode=='native':
+        from .native import configure
+        native=configure(root)
     settings = profile_settings(Settings.load(), root, args.mode)
     token = secrets.token_urlsafe(32)
+    from .compat import install as install_compat
+    install_compat(root)
     app = create_app(settings=settings, token=token)
+    if args.mode=='native':
+        from .updates import install_update_routes
+        from shapecast_core import __version__
+        install_update_routes(app,root,settings,__version__)
     cuda = {'devices': None, 'message': 'Optional CUDA runtime is not installed'}
     if config.get('cuda'):
         try:
@@ -65,7 +75,7 @@ def main():
     core_socket.listen(128)
     core_port = core_socket.getsockname()[1]
     ui = make_ui(root/'vendor/ui', token,
-                 lambda: {'cuda': cuda, 'missing_models': missing_weights(Settings.load().engine2_models_dir, 512)},
+                 lambda: {'cuda': cuda, 'native':native,'missing_models': missing_weights(Settings.load().engine2_models_dir, 512) if Settings.load().mesh_engine=='engine2' else []},
                  preview_mode=args.mode == 'preview')
     ui_port = ui.server_address[1]
     start_path = '/preview' if args.mode == 'preview' else '/'
