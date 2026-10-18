@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.1 — 2026-10-18
+
+- Added Manage jobs: clear a snapshot of waiting jobs, cancel an individual waiting job, and reversibly hide finished jobs from history and queue recents.
+- Preserve running casts, casts awaiting approval, and all generated files/library assets. Hidden jobs persist across restarts and can be restored.
+- Added authenticated same-origin relay, paginated job lists and queue admission locking for safe clearing.
+
+## 0.4.0 — alternate-view approval
+
+- Review alternate views before geometry, approve each angle, or regenerate a rejected view while retaining approved siblings.
+- Persist reviews across restarts, reject stale actions, retain the previous image on regeneration failure and preserve original generation permissions.
+
 ## 0.3.0 — guided setup
 
 - One terminal wizard for prerequisites, installer validation, activation, models, native runtimes, diagnostics and launchers.

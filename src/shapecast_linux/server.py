@@ -58,6 +58,8 @@ def main():
     if args.mode=='native':
         from .view_review import install_view_review
         install_view_review(app)
+        from .job_controls import install_job_controls
+        install_job_controls(app)
         from .updates import install_update_routes
         from shapecast_core import __version__
         install_update_routes(app,root,settings,__version__)

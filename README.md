@@ -14,6 +14,10 @@ The portable helper is validated separately from the original development enviro
 
 Native casts now pause after alternate images are generated. Compare them with the front reference, approve each view, or reject and regenerate an individual angle. Accepted views stay unchanged; geometry starts only after all alternate views are approved and you choose **Continue to geometry**. Reviews survive refreshes and restarts. See [view review](docs/view-review.md) for the workflow and failure recovery.
 
+## Queue and job history
+
+Choose **Manage jobs** in the top toolbar. **Clear waiting queue** cancels jobs that have not started; running casts and approval-paused casts are kept. Cancel an individual waiting job, or **Hide** a completed, failed or cancelled job. Use **Show hidden jobs → Restore to lists** to bring it back. These actions preserve your job records, generated files and library assets. See [job controls](docs/job-controls.md).
+
 ## Requirements
 
 - Linux x86-64; tested on Ubuntu/Kubuntu 26.04.1.

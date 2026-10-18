@@ -58,3 +58,7 @@ Report the helper commit, core version, GPU/driver and exact stage, and identify
 The wizard was exercised in a real terminal against the disposable installation: it detected the GPU and existing reviewed core, opened a temporary original activation service, and stopped that service when “later” was selected. No model downloads or activation overrides were used. Resuming with the explicit placeholder preset passed core/UI integrity and diagnostics and created a private launch script. Application-menu changes and starting the app were declined for this validation.
 
 Source checks cover reviewed-installer orchestration, prerequisite consent, fresh and resumed setup, licence-email pauses, rejection of failed licence checks, stopping before runtimes after model failures, preservation of existing licence/library files, active-session protection, cancellation, shell/desktop quoting, and preservation of unrelated launchers. A complete new-owner activation/download/generation walkthrough remains a community validation target.
+
+## Job controls (2026-10-18)
+
+Helper 0.4.1 passed the 81-test source suite and separate purchased-core checks for snapshot queue clearing, active/approval job protection, filtering before pagination, file retention, authenticated routes, admission serialization and persistent hide/restore. Browser tests used disposable synthetic jobs. The deployed 0.3.17 setup serves the same helper code; no owner queue changes were made for validation. See [job controls](job-controls.md).
