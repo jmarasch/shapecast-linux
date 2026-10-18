@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 — Queue-page cleanup
+
+- Moved cleanup directly onto Queue: Clear all removes finished records only; a left-side × appears when hovering over a finished row.
+- Pending, running and approval-paused jobs are untouched. Queue cleanup preserves library assets, files and other job history. Undo clear restores the last cleared group.
+- Removed the separate Manage jobs panel and its waiting-job cancellation controls. The original ambiguous Clear-waiting button is hidden on Queue.
+- Original vendor files stay unchanged; reviewed UI row identifiers are added only while serving the page.
+
 ## 0.4.1 — 2026-10-18
 
 - Added Manage jobs: clear a snapshot of waiting jobs, cancel an individual waiting job, and reversibly hide finished jobs from history and queue recents.

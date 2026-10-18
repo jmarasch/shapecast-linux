@@ -8,7 +8,9 @@ import urllib.request
 import urllib.error
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from shapecast_linux.job_controls import is_hidden, KEY
+from shapecast_linux.job_controls import is_hidden, KEY, adapt_queue_bundle
+from unittest.mock import patch
+import hashlib
 from shapecast_linux.ui_server import make_ui
 
 
@@ -20,6 +22,23 @@ class VisibilityTests(unittest.TestCase):
             self.assertTrue(is_hidden(SimpleNamespace(status=status, params={KEY: True})))
             for params in (None, {}, {KEY: False}, {KEY: 'true'}):
                 self.assertFalse(is_hidden(SimpleNamespace(status=status, params=params)))
+
+
+class QueueBundleTests(unittest.TestCase):
+    def test_unreviewed_bundle_is_unchanged(self):
+        sample=b'console.log("synthetic unreviewed app")'
+        self.assertEqual(adapt_queue_bundle(sample),sample)
+
+    def test_reviewed_bundle_gets_stable_page_and_row_attributes(self):
+        sample=b'function xL(){return c.jsxs("div",{className:"page"})}function vL({job:a}){return c.jsxs("div",{className:"row"})}'
+        adapt_queue_bundle.cache_clear()
+        try:
+            with patch('shapecast_linux.job_controls.QUEUE_BUNDLE_SHA256', hashlib.sha256(sample).hexdigest()):
+                result=adapt_queue_bundle(sample)
+            self.assertIn(b'"data-linux-queue-page":true',result)
+            self.assertIn(b'"data-linux-queue-job":a.id,"data-linux-queue-status":a.status',result)
+            self.assertNotIn(b'data-linux-queue',sample)
+        finally:adapt_queue_bundle.cache_clear()
 
 
 class JobProxyTests(unittest.TestCase):
@@ -68,13 +87,15 @@ class JobProxyTests(unittest.TestCase):
 
     def test_mutations_scoped_and_cross_origin_rejected(self):
         identifier = '12345678-1234-1234-1234-123456789abc'
-        self.assertEqual(self.request('/clear', {'job_ids':[identifier]})[0], 200)
-        for action in ('hide','restore','cancel'):
+        self.assertEqual(self.request('/clear-finished', {})[0], 200)
+        for action in ('hide','restore','dismiss'):
             self.assertEqual(self.request('/'+identifier+'/'+action, {})[0], 200)
         self.assertEqual(self.request('/'+identifier+'/delete', {})[0], 404)
-        self.assertEqual(self.request('/clear', {}, headers={'Origin':'https://foreign.example'})[0], 403)
+        self.assertEqual(self.request('/clear', {})[0], 404)
+        self.assertEqual(self.request('/'+identifier+'/cancel', {})[0], 404)
+        self.assertEqual(self.request('/clear-finished', {}, headers={'Origin':'https://foreign.example'})[0], 403)
         self.assertEqual(self.request(headers={'Host':'foreign.example'})[0], 403)
-        self.assertEqual(json.loads(self.records[0][3]), {'job_ids':[identifier]})
+        self.assertEqual(json.loads(self.records[0][3]), {})
         self.assertEqual(len(self.records), 4)
 
     def test_assets_injected(self):

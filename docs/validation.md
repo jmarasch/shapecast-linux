@@ -59,6 +59,10 @@ The wizard was exercised in a real terminal against the disposable installation:
 
 Source checks cover reviewed-installer orchestration, prerequisite consent, fresh and resumed setup, licence-email pauses, rejection of failed licence checks, stopping before runtimes after model failures, preservation of existing licence/library files, active-session protection, cancellation, shell/desktop quoting, and preservation of unrelated launchers. A complete new-owner activation/download/generation walkthrough remains a community validation target.
 
-## Job controls (2026-10-18)
+## Job controls 0.4.1 (superseded by 0.4.2)
 
 Helper 0.4.1 passed the 81-test source suite and separate purchased-core checks for snapshot queue clearing, active/approval job protection, filtering before pagination, file retention, authenticated routes, admission serialization and persistent hide/restore. Browser tests used disposable synthetic jobs. The deployed 0.3.17 setup serves the same helper code; no owner queue changes were made for validation. See [job controls](job-controls.md).
+
+## Queue-page cleanup 0.4.2
+
+The corrected implementation clears finished records directly on Queue, with Clear all and a left-side hover ×. Source checks pass 83 tests. Separate original-core checks verify that more than 25 finished records clear while pending, running and approval-paused jobs stay untouched; all statuses, work files, original parameters and non-Queue history are preserved. Undo and persistence across restart pass. The original Queue UI was tested with disposable records, including hover visibility and normal polling after clearing. Owner records are not changed by validation.

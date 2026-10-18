@@ -8,7 +8,7 @@ from urllib.parse import unquote, urlsplit
 
 from .common import WEB
 from .view_review import PROXY_PATH, IMAGE_PATH, proxy_review
-from .job_controls import PROXY_PATH as JOBS_PATH, proxy_jobs
+from .job_controls import PROXY_PATH as JOBS_PATH, proxy_jobs, adapt_queue_bundle
 CSP = ("default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
        "connect-src 'self' http://127.0.0.1:* blob:; img-src 'self' blob: data:; "
        "font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; "
@@ -75,7 +75,9 @@ class Page(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         mime = mimetypes.guess_type(file.name)[0] or 'application/octet-stream'
-        self.reply(file.read_bytes(), mime, CSP)
+        data = file.read_bytes()
+        if file.suffix == '.js': data = adapt_queue_bundle(data)
+        self.reply(data, mime, CSP)
 
     def reply(self, body, mime, csp=None):
         self.send_response(200)

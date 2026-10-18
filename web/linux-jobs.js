@@ -1,101 +1,90 @@
-/* Reversible job-list controls; assets and vendor records are never deleted. */
+/* Queue-page record cleanup. Pending and active jobs are never cleared. */
 (() => {
   'use strict';
-  const dialog = document.createElement('dialog'); dialog.id = 'linux-jobs';
-  dialog.setAttribute('aria-labelledby', 'lj-title');
-  dialog.innerHTML = `<header><h2 id="lj-title">Manage jobs</h2><button type="button" data-action="close">Close</button></header>
-    <p>Clear jobs that have not started, or hide finished jobs from the lists. Generated files and library assets are kept.</p>
-    <div class="lj-tools"><button type="button" data-action="clear" disabled>Clear waiting queue</button>
-    <label><input type="checkbox" id="lj-hidden"> Show hidden jobs</label><button type="button" data-action="refresh">Refresh</button></div>
-    <p id="lj-message" role="status" aria-live="polite"></p><div id="lj-rows"></div>
-    <footer><button type="button" data-action="previous" disabled>Previous</button><span id="lj-page"></span><button type="button" data-action="next" disabled>Next</button></footer>`;
-  document.body.append(dialog);
-  let data = null, offset = 0, busy = false, changed = false, lastFocus;
-  const hidden = dialog.querySelector('#lj-hidden');
-  const message = dialog.querySelector('#lj-message');
-  const node = (tag, text) => { const result = document.createElement(tag); result.textContent = text; return result; };
+  const finished = new Set(['complete', 'failed', 'cancelled']);
+  let busy = false, lastBatch = sessionStorage.getItem('linux-queue-undo'), notice = '';
+  const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
   function request(path, body) {
     return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest(); xhr.open(body === undefined ? 'GET' : 'POST', '/linux-jobs-api'+path);
+      const xhr = new XMLHttpRequest(); xhr.open('POST', '/linux-jobs-api'+path);
       xhr.responseType = 'json'; xhr.timeout = 25000;
       xhr.setRequestHeader('Authorization', 'Bearer '+window.__SHAPECAST__.token);
-      if (body !== undefined) xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.onload = () => xhr.status >= 200 && xhr.status < 300 && xhr.response ? resolve(xhr.response)
-        : reject(new Error(typeof xhr.response?.detail === 'string' ? xhr.response.detail : 'Could not update the job list. Try again.'));
-      xhr.onerror = xhr.ontimeout = () => reject(new Error('Could not reach the local job service. Try again.'));
-      xhr.send(body === undefined ? null : JSON.stringify(body));
+        : reject(new Error(typeof xhr.response?.detail === 'string' ? xhr.response.detail : 'Could not clear the record. Try again.'));
+      xhr.onerror = xhr.ontimeout = () => reject(new Error('Could not reach the local queue service. Try again.'));
+      xhr.send(JSON.stringify(body));
     });
   }
-  function render() {
-    const rows = dialog.querySelector('#lj-rows'); rows.replaceChildren();
-    if (!data.jobs.length) rows.append(node('p', hidden.checked ? 'No hidden jobs.' : 'No jobs to show.'));
-    for (const job of data.jobs) {
-      const row = document.createElement('article');
-      const description = document.createElement('div');
-      description.append(node('strong', job.title), node('small', job.status.replaceAll('_', ' ')+' · '+new Date(job.created_at).toLocaleString()));
-      row.append(description);
-      const action = job.hidden ? 'restore' : job.can_hide ? 'hide' : job.status === 'queued' ? 'cancel' : null;
-      if (action) {
-        const button = node('button', {restore:'Restore to lists', hide:'Hide', cancel:'Cancel waiting job'}[action]);
-        button.type = 'button'; button.disabled = busy;
-        button.addEventListener('click', () => perform(action, job)); row.append(button);
-      } else row.append(node('small', 'Use cast controls to stop or finish this job.'));
-      rows.append(row);
-    }
-    dialog.querySelector('[data-action="clear"]').textContent = 'Clear waiting queue ('+data.queued_ids.length+')';
-    dialog.querySelector('[data-action="clear"]').disabled = busy || !data.queued_ids.length;
-    dialog.querySelector('[data-action="previous"]').disabled = busy || offset === 0;
-    dialog.querySelector('[data-action="next"]').disabled = busy || offset+data.jobs.length >= data.total;
-    dialog.querySelector('#lj-page').textContent = data.total ? (offset+1)+'–'+(offset+data.jobs.length)+' of '+data.total : '0 jobs';
-    dialog.querySelector('[data-action="refresh"]').disabled = hidden.disabled = busy;
+  function button(text, title, action, cls) {
+    const result = document.createElement('button'); result.type = 'button'; result.textContent = text;
+    result.title = title; result.className = cls; result.addEventListener('click', event => {
+      event.preventDefault(); event.stopPropagation(); action();
+    });
+    return result;
   }
-  async function load() {
-    data = await request('?offset='+offset+'&hidden='+(hidden.checked ? 1 : 0));
-    if (offset && !data.jobs.length) { offset = Math.max(0, offset-50); return load(); }
-    render();
-  }
-  async function perform(action, job) {
-    if (busy) return;
-    if (action === 'clear' && !confirm('Cancel the '+data.queued_ids.length+' waiting jobs shown in this queue snapshot? Running jobs and casts waiting for your approval will continue unchanged. Files are kept.')) return;
-    if (action === 'cancel' && !confirm('Cancel this waiting job? Its files will be kept.')) return;
-    busy = true; render(); message.textContent = 'Updating jobs…';
+  async function clear(id) {
+    if (busy || !window.__SHAPECAST__?.token) return;
+    busy = true; notice = 'Clearing finished records…'; mount();
     try {
-      const result = await request(action === 'clear' ? '/clear' : '/'+job.id+'/'+action,
-        action === 'clear' ? {job_ids: data.queued_ids} : {});
-      changed = true;
-      message.textContent = action === 'hide' ? 'Job hidden. Choose Show hidden jobs to restore it.'
-        : action === 'restore' ? 'Job restored to the lists.'
-        : result.changed+' waiting job(s) cancelled.'+(result.skipped ? ' '+result.skipped+' already started or changed and were left alone.' : '');
-      await load();
-    } catch (error) { message.textContent = error.message; }
-    finally { busy = false; render(); }
+      const result = await request(id ? '/'+id+'/dismiss' : '/clear-finished', {});
+      if (result.changed) {
+        lastBatch = result.batch_id; sessionStorage.setItem('linux-queue-undo', lastBatch);
+        document.querySelectorAll('[data-linux-queue-job]').forEach(row => {
+          if ((!id || row.dataset.linuxQueueJob === id) && finished.has(row.dataset.linuxQueueStatus))
+            row.classList.add('linux-queue-cleared');
+        });
+      }
+      notice = result.changed+' finished record'+(result.changed === 1 ? '' : 's')+' cleared. Files are kept.';
+    } catch (error) { notice = error.message; }
+    finally { busy = false; mount(); }
   }
-  async function refresh() {
-    if (busy) return;
-    busy = true; hidden.disabled = true; message.textContent = 'Loading jobs…';
-    try { await load(); message.textContent = 'Running jobs and casts waiting for approval stay listed.'; }
-    catch (error) { message.textContent = error.message; }
-    finally { busy = false; hidden.disabled = false; if (data) render(); }
+  async function undo() {
+    if (busy || !lastBatch) return;
+    busy = true; notice = 'Restoring records…'; mount();
+    try {
+      const result = await request('/restore-cleared', {batch_id:lastBatch});
+      lastBatch = null; sessionStorage.removeItem('linux-queue-undo');
+      document.querySelectorAll('.linux-queue-cleared').forEach(row => row.classList.remove('linux-queue-cleared'));
+      notice = result.changed+' record'+(result.changed === 1 ? '' : 's')+' restored.';
+    } catch (error) { notice = error.message; }
+    finally { busy = false; mount(); }
   }
-  dialog.addEventListener('click', event => {
-    const action = event.target.closest('[data-action]')?.dataset.action;
-    if (action === 'close') { if (!busy) dialog.close(); }
-    else if (action === 'clear') perform('clear');
-    else if (action === 'refresh') refresh();
-    else if ((action === 'next' || action === 'previous') && !busy) { offset += action === 'next' ? 50 : -50; refresh(); }
-  });
-  hidden.addEventListener('change', () => { offset = 0; refresh(); });
-  dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
-  dialog.addEventListener('close', () => {
-    // Refetch the original application's lists too; no generation or approval is submitted.
-    if (changed) location.reload(); else lastFocus?.focus();
-  });
   function mount() {
-    const toolbar = document.querySelector('#linux-toolbar');
-    if (!toolbar || !window.__SHAPECAST__?.token) { setTimeout(mount, 200); return; }
-    const button = node('button', 'Manage jobs'); button.type = 'button'; button.id = 'linux-manage-jobs';
-    button.addEventListener('click', () => { lastFocus = document.activeElement; dialog.showModal(); refresh(); });
-    toolbar.insertBefore(button, toolbar.querySelector('a'));
+    const page = document.querySelector('[data-linux-queue-page]');
+    if (!page) return;
+    const header = page.firstElementChild;
+    let controls = page.querySelector('.linux-queue-controls');
+    if (!controls) {
+      controls = document.createElement('div'); controls.className = 'linux-queue-controls';
+      const all = button('Clear all', 'Clear finished records only. Active and pending jobs stay listed.', () => clear(), 'linux-queue-clear-all');
+      const restore = button('Undo clear', 'Restore the last records cleared from this Queue page.', undo, 'linux-queue-undo');
+      const status = document.createElement('span'); status.className = 'linux-queue-notice';
+      status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+      controls.append(all, restore, status); header.insertAdjacentElement('afterend', controls);
+    }
+    page.querySelectorAll('[data-linux-queue-job]').forEach(row => {
+      const id = row.dataset.linuxQueueJob;
+      const eligible = uuid.test(id || '') && finished.has(row.dataset.linuxQueueStatus);
+      let remove = row.querySelector('.linux-queue-dismiss');
+      if (!eligible) { remove?.remove(); return; }
+      if (!remove) {
+        remove = button('×', 'Clear this finished record from the Queue list.', () => clear(row.dataset.linuxQueueJob), 'linux-queue-dismiss');
+        const label = row.querySelector('button')?.textContent || 'finished job';
+        remove.setAttribute('aria-label', 'Clear finished record: '+label);
+        row.prepend(remove);
+      }
+      remove.disabled = busy;
+    });
+    controls.querySelector('.linux-queue-clear-all').disabled = busy || !Array.from(page.querySelectorAll('[data-linux-queue-job]'))
+      .some(row => finished.has(row.dataset.linuxQueueStatus) && !row.classList.contains('linux-queue-cleared'));
+    const restore = controls.querySelector('.linux-queue-undo'); restore.hidden = !lastBatch; restore.disabled = busy;
+    const status = controls.querySelector('.linux-queue-notice'); if (status.textContent !== notice) status.textContent = notice;
   }
+  let scheduled = false;
+  new MutationObserver(() => {
+    if (scheduled) return;
+    scheduled = true; requestAnimationFrame(() => { scheduled = false; mount(); });
+  }).observe(document.getElementById('root'), {childList:true, subtree:true});
   mount();
 })();

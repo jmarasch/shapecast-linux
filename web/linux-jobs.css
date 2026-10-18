@@ -1,18 +1,13 @@
-#linux-manage-jobs,#linux-jobs button{font:inherit;color:#eee;background:#242238;border:1px solid #53506c;border-radius:7px;padding:8px 12px;cursor:pointer}
-#linux-manage-jobs{margin-left:auto;font-size:13px;padding:4px 12px}
-#linux-jobs{color:#eee;background:#131321;border:1px solid #53506c;border-radius:14px;width:min(900px,92vw);max-height:85vh;padding:24px;font:15px/1.5 system-ui;box-sizing:border-box}
-#linux-jobs::backdrop{background:#000b}
-#linux-jobs header,#linux-jobs footer,#linux-jobs .lj-tools{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-#linux-jobs header{justify-content:space-between}#linux-jobs h2{margin:0}
-#linux-jobs footer{justify-content:center;margin-top:18px}
-#linux-jobs article{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0;border-bottom:1px solid #35334a}
-#linux-jobs article div{min-width:0}#linux-jobs strong{display:block;overflow-wrap:anywhere}
-#linux-jobs small{display:block;color:#b4b2c9}#linux-jobs button{flex-shrink:0}
-#linux-jobs button:disabled{opacity:.45;cursor:default}#linux-jobs button:focus-visible{outline:2px solid #ab87ff;outline-offset:3px}
-#lj-message{min-height:1.5em;color:#c9bcff}#lj-rows{margin-top:12px}
-@media(max-width:600px){#linux-jobs article{align-items:flex-start;flex-direction:column}#linux-jobs{padding:16px}}
-#linux-jobs{position:fixed;inset:0;margin:auto}
-#linux-jobs[open]{display:flex;flex-direction:column}
-#linux-jobs header,#linux-jobs footer,#linux-jobs .lj-tools,#linux-jobs>p{flex-shrink:0}
-#linux-jobs h2{font-size:24px;font-weight:650}#linux-jobs>p{margin:12px 0}
-#lj-rows{min-height:0;max-height:45vh;overflow-y:auto;overscroll-behavior:contain;padding-right:8px}
+.linux-queue-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0}
+.linux-queue-clear-all,.linux-queue-undo{font:inherit;font-size:12px;color:#eee;background:#222033;border:1px solid #49445f;border-radius:7px;padding:7px 12px;cursor:pointer}
+.linux-queue-controls button:disabled,.linux-queue-dismiss:disabled{opacity:.35;cursor:default}
+.linux-queue-notice{font:12px/1.5 system-ui;color:#bcb3d4}
+[data-linux-queue-job]{position:relative;padding-left:30px!important}
+.linux-queue-dismiss{position:absolute;left:2px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:24px;height:24px;padding:0;color:#bcb3d4;background:transparent;border:1px solid transparent;border-radius:5px;font:20px/1 system-ui;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .12s}
+[data-linux-queue-job]:hover>.linux-queue-dismiss,[data-linux-queue-job]:focus-within>.linux-queue-dismiss{opacity:1;pointer-events:auto}
+.linux-queue-dismiss:hover{background:#3a2434;border-color:#784357;color:#ffb5c7}
+.linux-queue-dismiss:focus-visible,.linux-queue-controls button:focus-visible{outline:2px solid #ab87ff;outline-offset:2px;opacity:1;pointer-events:auto}
+[data-linux-queue-page] .linux-queue-cleared{display:none!important}
+/* The vendor's similarly named Clear cancels waiting jobs; this page's Clear all only clears finished records. */
+[data-linux-queue-page] button[title^="Remove everything still waiting."]{display:none}
+@media(hover:none){.linux-queue-dismiss{opacity:1;pointer-events:auto}}

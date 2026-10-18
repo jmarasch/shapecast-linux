@@ -8,9 +8,13 @@ import secrets
 import urllib.error
 import urllib.request
 import uuid
+import hashlib
+from functools import lru_cache
 
 PROXY_PATH = '/linux-jobs-api'
-KEY = '_linux_job_hidden'
+KEY = '_linux_job_hidden'  # Legacy global visibility; retained for existing profiles.
+QUEUE_KEY = '_linux_queue_hidden'
+QUEUE_BUNDLE_SHA256 = '426fd71cb968edb04a89c1afea5f8f4091ca21bdb4fc01fcf02f22d38e170953'
 TERMINAL = ('complete', 'failed', 'cancelled')
 _managers = {}
 
@@ -22,6 +26,33 @@ def is_hidden(job):
 def visible_clause(Job):
     from sqlalchemy import and_, not_, func
     return not_(and_(Job.status.in_(TERMINAL), func.coalesce(Job.params[KEY].as_boolean(), False)))
+
+
+@lru_cache(maxsize=2)
+def adapt_queue_bundle(data):
+    """Add stable row identifiers to the reviewed UI in memory, never on disk.
+
+    These attributes let the helper attach controls without guessing from titles
+    or reaching into React internals. Unreviewed bundles are returned unchanged.
+    """
+    if hashlib.sha256(data).hexdigest() != QUEUE_BUNDLE_SHA256:
+        return data
+    text = data.decode('utf-8')
+    for signature, attribute in (
+        ('function xL(', '"data-linux-queue-page":true,'),
+        ('function vL(', '"data-linux-queue-job":a.id,"data-linux-queue-status":a.status,'),
+    ):
+        start = text.index(signature)
+        root = text.index('return c.jsxs("div",{className:', start)
+        text = text[:root]+text[root:].replace('return c.jsxs("div",{className:',
+            'return c.jsxs("div",{'+attribute+'className:', 1)
+    return text.encode('utf-8')
+
+
+def queue_visible_clause(Job):
+    from sqlalchemy import and_, not_
+    # Only finished records are cleared. A pending or active job is always visible.
+    return not_(and_(Job.status.in_(TERMINAL), Job.params[QUEUE_KEY].as_string().is_not(None)))
 
 
 def manager_for_db(db):
@@ -42,7 +73,7 @@ def proxy_jobs(handler):
     identifier = r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
     if not ((handler.command == 'GET' and suffix == '' and re.fullmatch(r'(?:offset=\d{1,7}&hidden=[01])?', parsed.query))
             or (handler.command == 'POST' and not parsed.query and
-                (suffix == '/clear' or re.fullmatch('/'+identifier+r'/(hide|restore|cancel)', suffix)))):
+                (suffix in ('/clear-finished', '/restore-cleared') or re.fullmatch('/'+identifier+r'/(hide|restore|dismiss)', suffix)))):
         handler.send_error(404); return
     port = getattr(server, 'core_port', None)
     if type(port) is not int or not 0 < port < 65536:
@@ -85,72 +116,70 @@ def proxy_jobs(handler):
 class JobManager:
     def __init__(self, app):
         self.app = app
-        # Admission and clearing share this lock so a waiting job cannot start halfway through a clear.
+        # Serialize helper metadata changes; cancellation and generation are never called.
         self.lock = asyncio.Lock()
 
+    async def clear_finished(self, job_id=None):
+        from sqlalchemy import update, func
+        from shapecast_core.models import Job
+        batch = str(uuid.uuid4())
+        async with self.lock, self.app.state.sessionmaker() as db:
+            query = update(Job).where(Job.status.in_(TERMINAL), visible_clause(Job), queue_visible_clause(Job))
+            if job_id is not None: query = query.where(Job.id == job_id)
+            # A single conditional update cannot overwrite a concurrent retry or job transition.
+            result = await db.execute(query.values(params=func.json_set(
+                func.coalesce(Job.params, '{}'), '$.'+QUEUE_KEY, batch)).execution_options(synchronize_session=False))
+            if job_id is not None and result.rowcount == 0:
+                raise ValueError('This record changed or is active/pending. Refresh the Queue page.')
+            await db.commit()
+            return {'changed': result.rowcount, 'batch_id': batch}
+
+    async def restore_cleared(self, body):
+        from sqlalchemy import update, func
+        from shapecast_core.models import Job
+        batch = str(uuid.UUID(body['batch_id']))
+        async with self.lock, self.app.state.sessionmaker() as db:
+            result = await db.execute(update(Job).where(Job.params[QUEUE_KEY].as_string() == batch)
+                .values(params=func.json_remove(Job.params, '$.'+QUEUE_KEY))
+                .execution_options(synchronize_session=False))
+            await db.commit()
+            return {'changed': result.rowcount}
+
     async def action(self, action, body, job_id=None):
-        from shapecast_core import jobs_service as jobs, queue_service as queue
         from shapecast_core.models import Job
         if not isinstance(body, dict): raise ValueError('Invalid job request.')
-        ids = None
-        if action == 'clear':
-            raw = body.get('job_ids')
-            if not isinstance(raw, list) or not raw or len(raw) > 1000:
-                raise ValueError('Refresh the queue before clearing it.')
-            ids = list(dict.fromkeys(uuid.UUID(value) for value in raw if isinstance(value, str)))
-            if len(ids) != len(raw): raise ValueError('Invalid queue snapshot.')
-        elif action not in ('hide', 'restore', 'cancel'):
-            raise ValueError('Unknown job action.')
-        changed, skipped = 0, 0
+        if action in ('clear-finished', 'dismiss'): return await self.clear_finished(job_id)
+        if action == 'restore-cleared': return await self.restore_cleared(body)
+        if action not in ('hide', 'restore'): raise ValueError('Unknown job action.')
+        # Retain restoration of legacy global-hidden records from helper 0.4.1.
         async with self.lock, self.app.state.sessionmaker() as db:
-            for identifier in ids or [job_id]:
-                job = await db.get(Job, identifier)
-                if job is None:
-                    if ids: skipped += 1; continue
-                    raise ValueError('This job is no longer available.')
-                if action in ('clear', 'cancel'):
-                    if job.status != 'queued':
-                        if ids: skipped += 1; continue
-                        raise ValueError('This job has started. Use its cast controls to stop it.')
-                    await jobs.cancel_job(db, self.app.state.bus, job)
-                    # No host is stopped: only waiting jobs can reach this branch.
-                    changed += 1
-                else:
-                    if action == 'hide' and job.status not in TERMINAL:
-                        raise ValueError('Finish or cancel this job before hiding it.')
-                    params = dict(job.params or {})
-                    if action == 'hide': params[KEY] = True
-                    else: params.pop(KEY, None)
-                    job.params = params
-                    changed += 1
-            if action in ('clear', 'cancel'):
-                await queue.compact(db)
+            job = await db.get(Job, job_id)
+            if job is None: raise ValueError('This job is no longer available.')
+            if action == 'hide' and job.status not in TERMINAL:
+                raise ValueError('Finish or cancel this job before hiding it.')
+            params = dict(job.params or {})
+            if action == 'hide': params[KEY] = True
+            else: params.pop(KEY, None)
+            job.params = params
             await db.commit()
-        return {'changed': changed, 'skipped': skipped}
+        return {'changed': 1}
 
 
 def install_hooks():
     from sqlalchemy import select
     from shapecast_core import queue_service as queue
     from shapecast_core.models import Job
-    if getattr(queue.start_next, '_linux_job_controls', False): return
-    original_start, original_recent = queue.start_next, queue.recent
-
-    @wraps(original_start)
-    async def start(db, bus, settings):
-        manager = manager_for_db(db)
-        if manager:
-            async with manager.lock: return await original_start(db, bus, settings)
-        return await original_start(db, bus, settings)
+    if getattr(queue.recent, '_linux_job_controls', False): return
+    original_recent = queue.recent
 
     @wraps(original_recent)
     async def recent(db, limit=25):
         if not manager_for_db(db): return await original_recent(db, limit)
-        return list((await db.scalars(select(Job).where(Job.status.in_(TERMINAL), visible_clause(Job))
+        return list((await db.scalars(select(Job).where(Job.status.in_(TERMINAL), visible_clause(Job), queue_visible_clause(Job))
             .order_by(Job.finished_at.desc(), Job.created_at.desc()).limit(limit))).all())
 
-    start._linux_job_controls = True
-    queue.start_next, queue.recent = start, recent
+    recent._linux_job_controls = True
+    queue.recent = recent
 
 
 def install_job_controls(app):
@@ -195,11 +224,14 @@ def install_job_controls(app):
     async def perform(action, request, job_id=None):
         try:
             return await manager.action(action, await request.json(), job_id)
-        except (ValueError, TypeError, AttributeError, json.JSONDecodeError) as error:
+        except (ValueError, TypeError, AttributeError, json.JSONDecodeError, KeyError) as error:
             raise HTTPException(409, str(error)) from None
 
-    @app.post('/v1/linux-jobs/clear')
-    async def clear(request: Request): return await perform('clear', request)
+    @app.post('/v1/linux-jobs/clear-finished')
+    async def clear_finished(request: Request): return await perform('clear-finished', request)
+
+    @app.post('/v1/linux-jobs/restore-cleared')
+    async def restore_cleared(request: Request): return await perform('restore-cleared', request)
 
     @app.post('/v1/linux-jobs/{job_id}/{action}')
     async def action(job_id: uuid.UUID, action: str, request: Request):

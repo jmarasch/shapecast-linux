@@ -16,7 +16,7 @@ Native casts now pause after alternate images are generated. Compare them with t
 
 ## Queue and job history
 
-Choose **Manage jobs** in the top toolbar. **Clear waiting queue** cancels jobs that have not started; running casts and approval-paused casts are kept. Cancel an individual waiting job, or **Hide** a completed, failed or cancelled job. Use **Show hidden jobs → Restore to lists** to bring it back. These actions preserve your job records, generated files and library assets. See [job controls](docs/job-controls.md).
+On the **Queue** page, **Clear all** clears completed, failed and cancelled records from its Finished list. Hover over a finished row to reveal a small **×** on its left; click it to clear just that record. Pending, running and approval-paused jobs remain. **Undo clear** restores the last cleared record or group. Generated files, assets and job history are retained. See [job controls](docs/job-controls.md).
 
 ## Requirements
 
