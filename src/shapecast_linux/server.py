@@ -56,6 +56,8 @@ def main():
     install_compat(root)
     app = create_app(settings=settings, token=token)
     if args.mode=='native':
+        from .view_review import install_view_review
+        install_view_review(app)
         from .updates import install_update_routes
         from shapecast_core import __version__
         install_update_routes(app,root,settings,__version__)
@@ -78,6 +80,7 @@ def main():
                  lambda: {'cuda': cuda, 'native':native,'missing_models': missing_weights(Settings.load().engine2_models_dir, 512) if Settings.load().mesh_engine=='engine2' else []},
                  preview_mode=args.mode == 'preview')
     ui_port = ui.server_address[1]
+    ui.core_port = core_port
     start_path = '/preview' if args.mode == 'preview' else '/'
     url = f'http://127.0.0.1:{ui_port}{start_path}#core={core_port}&token={token}'
     threading.Thread(target=ui.serve_forever, daemon=True).start()

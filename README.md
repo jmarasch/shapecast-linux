@@ -10,6 +10,10 @@ The native components have completed real image generation, Quality shape/textur
 
 The portable helper is validated separately from the original development environment. See [validation](docs/validation.md) for the exact checks and limits. Placeholder mode still creates a box; it is only a workflow test.
 
+## Alternate-view approval
+
+Native casts now pause after alternate images are generated. Compare them with the front reference, approve each view, or reject and regenerate an individual angle. Accepted views stay unchanged; geometry starts only after all alternate views are approved and you choose **Continue to geometry**. Reviews survive refreshes and restarts. See [view review](docs/view-review.md) for the workflow and failure recovery.
+
 ## Requirements
 
 - Linux x86-64; tested on Ubuntu/Kubuntu 26.04.1.

@@ -7,18 +7,28 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 from .common import WEB
+from .view_review import PROXY_PATH, IMAGE_PATH, proxy_review
 CSP = ("default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
        "connect-src 'self' http://127.0.0.1:* blob:; img-src 'self' blob: data:; "
        "font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; "
        "form-action 'none'; frame-ancestors 'none'; base-uri 'none'")
 
 class Page(BaseHTTPRequestHandler):
+    def do_POST(self):
+        if urlsplit(self.path).path.startswith(PROXY_PATH):
+            proxy_review(self)
+        else:
+            self.send_error(405)
+
     def do_GET(self):
         # Reject DNS rebinding and arbitrary Host headers even on the loopback listener.
         if self.headers.get('Host') not in {f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}'}:
             self.send_error(403)
             return
         path = unquote(urlsplit(self.path).path)
+        if path.startswith((PROXY_PATH, IMAGE_PATH)):
+            proxy_review(self)
+            return
         if path == '/native-status':
             supplied = self.headers.get('Authorization', '').removeprefix('Bearer ').strip()
             if not secrets.compare_digest(supplied, self.server.launch_token):
@@ -37,14 +47,14 @@ class Page(BaseHTTPRequestHandler):
             html = (self.server.assets/'index.html').read_text()
             html = html.replace('<title>Shapecast</title>', '<title>Shapecast — Linux</title><script src="/linux-bridge.js"></script><link rel="stylesheet" href="/linux-shell.css"><link rel="stylesheet" href="/linux-updates.css">')
             if not self.server.preview_mode:
-                html=html.replace('</head>','<script src="/linux-updates.js" defer></script></head>')
+                html=html.replace('</head>','<script src="/linux-updates.js" defer></script><script src="/linux-view-review.js" defer></script><link rel="stylesheet" href="/linux-view-review.css"></head>')
             html = html.replace('<body>', '<body><nav id="linux-toolbar" aria-label="Linux runtime"><span>Native Linux runtime · Your vendor licence and models required</span><a id="linux-setup" href="/setup">Linux setup</a></nav>')
             if self.server.preview_mode:
                 html = html.replace('Native Linux runtime · Your vendor licence and models required', 'Placeholder test profile · Results are sample models, not AI output')
                 html = html.replace('<a id="linux-setup"', '<a id="linux-preview" href="/preview">Test previews</a><a id="linux-setup"')
             self.reply(html.encode(), 'text/html; charset=utf-8', CSP)
             return
-        if path in ('/linux-bridge.js', '/linux-shell.css','/linux-updates.js','/linux-updates.css'):
+        if path in ('/linux-bridge.js', '/linux-shell.css','/linux-updates.js','/linux-updates.css', '/linux-view-review.js', '/linux-view-review.css'):
             file = WEB/path[1:]
         elif path in self.server.asset_paths:
             file = (self.server.assets/path[1:]).resolve()

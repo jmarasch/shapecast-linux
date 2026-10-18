@@ -1,0 +1,35 @@
+#linux-view-review[hidden], #linux-view-review-banner[hidden], #lvr-zoom[hidden] { display: none !important; }
+#linux-view-review-banner { position: fixed; right: 20px; bottom: 20px; z-index: 2000; max-width: min(440px, 90vw); display: grid; gap: 8px; }
+#linux-view-review-banner button, #linux-view-review button { font: inherit; color: #eeecff; background: #222036; border: 1px solid #55506f; border-radius: 9px; padding: 10px 15px; cursor: pointer; }
+#linux-view-review-banner button { text-align: left; box-shadow: 0 4px 25px #0008; }
+#linux-view-review { position: fixed; inset: 0; z-index: 2100; display: grid; place-items: center; padding: 20px; background: #060611e8; color: #eeecff; font: 15px/1.5 system-ui, sans-serif; }
+#linux-view-review * { box-sizing: border-box; }
+#linux-view-review section { position: relative; width: min(1420px, 100%); max-height: 95vh; overflow-y: auto; background: #10101e; border: 1px solid #45405e; border-radius: 18px; padding: 24px; box-shadow: 0 20px 80px #0009; }
+#linux-view-review header, #linux-view-review footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+#linux-view-review .lvr-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+#linux-view-review h2 { margin: 0; font-size: 27px; }
+#linux-view-review h3 { margin: 0 0 12px; font-size: 16px; }
+#linux-view-review p { margin: 12px 0; }
+#linux-view-review .lvr-eyebrow { margin: 0 0 4px; color: #b6a9ea; font-size: 11px; letter-spacing: .16em; }
+#lvr-job { font-weight: 600; overflow-wrap: anywhere; }
+#lvr-status { color: #c2b6e9; min-height: 23px; }
+#lvr-error { color: #ffbdc5; padding: 12px; background: #3a1924; border-radius: 8px; }
+#lvr-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 22px 0; }
+#linux-view-review .lvr-card { min-width: 0; padding: 14px; background: #191827; border: 1px solid #48425e; border-radius: 12px; }
+#linux-view-review .lvr-approved { border-color: #58866c; }
+#linux-view-review .lvr-image { display: block; width: 100%; padding: 0; aspect-ratio: 1; background: #e9e9ed; overflow: hidden; }
+#linux-view-review .lvr-image-error { color: #373044; padding: 18px; }
+#linux-view-review img { display: block; width: 100%; height: 100%; object-fit: contain; }
+#linux-view-review .lvr-view-state { color: #c2bfd4; font-size: 13px; }
+#linux-view-review .lvr-approved .lvr-view-state { color: #a5dfbc; }
+#linux-view-review .lvr-actions { display: grid; gap: 8px; }
+#linux-view-review button:hover:not(:disabled) { border-color: #b8a0ff; background: #302948; }
+#linux-view-review button:focus-visible { outline: 3px solid #c2aaff; outline-offset: 3px; }
+#linux-view-review button:disabled { opacity: .45; cursor: default; }
+#linux-view-review .lvr-primary { background: #6549ae; border-color: #aa8eec; font-weight: 600; }
+#linux-view-review footer span { flex: 1; font-size: 13px; color: #b4afc8; }
+#lvr-zoom { position: fixed; inset: 35px; z-index: 1; background: #10101e; padding: 18px; display: flex; flex-direction: column; gap: 12px; border: 1px solid #55506f; border-radius: 12px; }
+#lvr-zoom img { min-height: 0; flex: 1; }
+#lvr-zoom button { align-self: flex-start; }
+@media(max-width: 1000px) { #lvr-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media(max-width: 540px) { #linux-view-review { padding: 8px; } #linux-view-review section { padding: 15px; } #lvr-cards { grid-template-columns: 1fr; } #linux-view-review footer { align-items: stretch; flex-direction: column; } }
