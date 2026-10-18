@@ -2,6 +2,8 @@
 
 Run your **purchased Shapecast 0.3.17** natively on Linux x86-64, using the original core and interface in a local browser. This unofficial helper installs native NVIDIA inference environments for Quality, Fast, reference images, rigging, sharpening and topology tools. Wine and Flatpak are not required.
 
+**Community testing / experimental:** Native generation has worked on the development machine, but a fresh owner’s complete activation → model download → generation walkthrough is still unverified. A licence issued for an old or different machine ID may not activate the Linux installation. This is an unofficial project, with no vendor endorsement. Please report reproducible problems through [GitHub Issues](https://github.com/jmarasch/shapecast-linux/issues).
+
 **You need your own Shapecast installer, a vendor-issued licence for this Linux machine, and the licensed model packs.** This repository contains compatibility code only. It does not contain Shapecast, its interface, models, licences, activation overrides or private machine identifiers. Linux is not officially supported by Shapecast; vendor licence issuance is outside this project's control.
 
 ## Tested scope
