@@ -45,7 +45,7 @@ cd shapecast-linux
 ./setup.sh
 ```
 
-You can also run `./shapecast-linux` without a command, or `./shapecast-linux setup`. The wizard asks for your install folder and purchased installer, checks your NVIDIA GPU and prerequisites, and offers Full, Quality, Fast or placeholder-only setup. On apt-based systems it can install missing system packages after you explicitly choose yes and enter your normal sudo password. It never upgrades your driver or adds package repositories.
+No installer path or setup options are supplied by that command; choose them in the prompts. You can also run `./shapecast-linux` without a command, or `./shapecast-linux setup`. The wizard asks for your install folder and purchased installer, checks your NVIDIA GPU and prerequisites, and offers Full, Quality, Fast or placeholder-only setup. On apt-based systems it can install missing system packages after you explicitly choose yes and enter your normal sudo password. It never upgrades your driver or adds package repositories.
 
 It then opens the original activation page, waits for a valid vendor-issued licence, downloads or imports the required model packs, builds the selected native runtimes, runs diagnostics and offers separate application-menu and desktop shortcuts. Keys are entered in the local browser page, not logged or pasted into the terminal. If you are waiting for the licence email, choose **later**. Run the same wizard again to resume; verified downloads and finished runtimes are reused. Run it from a terminal; redirected/non-interactive input is rejected.
 
