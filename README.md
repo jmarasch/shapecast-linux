@@ -47,7 +47,7 @@ cd shapecast-linux
 
 You can also run `./shapecast-linux` without a command, or `./shapecast-linux setup`. The wizard asks for your install folder and purchased installer, checks your NVIDIA GPU and prerequisites, and offers Full, Quality, Fast or placeholder-only setup. On apt-based systems it can install missing system packages after you explicitly choose yes and enter your normal sudo password. It never upgrades your driver or adds package repositories.
 
-It then opens the original activation page, waits for a valid vendor-issued licence, downloads or imports the required model packs, builds the selected native runtimes, runs diagnostics and offers an application-menu launcher. Keys are entered in the local browser page, not logged or pasted into the terminal. If you are waiting for the licence email, choose **later**. Run the same wizard again to resume; verified downloads and finished runtimes are reused. Run it from a terminal; redirected/non-interactive input is rejected.
+It then opens the original activation page, waits for a valid vendor-issued licence, downloads or imports the required model packs, builds the selected native runtimes, runs diagnostics and offers separate application-menu and desktop shortcuts. Keys are entered in the local browser page, not logged or pasted into the terminal. If you are waiting for the licence email, choose **later**. Run the same wizard again to resume; verified downloads and finished runtimes are reused. Run it from a terminal; redirected/non-interactive input is rejected.
 
 Advanced options:
 
@@ -56,7 +56,7 @@ Advanced options:
 ./setup.sh --cxx /usr/bin/g++-13 --no-browser
 ```
 
-Existing installations using this helper are reused. A reviewed software update keeps its normal backup checkpoint. Your other installations are not automatically imported or deleted. Keep the repository folder because the launcher uses its code.
+Existing installations using this helper are reused. A reviewed software update keeps its normal backup checkpoint. Your other installations are not automatically imported or deleted. Keep the repository folder because the launcher uses its code. When another helper installation already has shortcuts, setup gives this installation separate named shortcuts and preserves the existing ones.
 
 The wizard's real licence-email pause and preview-resume paths have been checked against a local installation. Complete new-owner vendor activation and licensed model downloads still need independent validation; see [validation](docs/validation.md).
 

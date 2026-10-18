@@ -66,3 +66,7 @@ Helper 0.4.1 passed the 81-test source suite and separate purchased-core checks 
 ## Queue-page cleanup 0.4.2
 
 The corrected implementation clears finished records directly on Queue, with Clear all and a left-side hover ×. Source checks pass 83 tests. Separate original-core checks verify that more than 25 finished records clear while pending, running and approval-paused jobs stay untouched; all statuses, work files, original parameters and non-Queue history are preserved. Undo and persistence across restart pass. The original Queue UI was tested with disposable records, including hover visibility and normal polling after clearing. Owner records are not changed by validation.
+
+## Desktop and menu shortcuts 0.4.3
+
+Guided setup now asks independently about menu and desktop entries. Source tests cover executable desktop files, localized/disabled XDG desktops, both shortcut choices, preservation of unrelated files, and rerunning setup with two installations without overwriting the first installation. Tests write into disposable folders; the owner is walking through a fresh install separately. This is shortcut validation, not a claim of a new complete AI-runtime installation.

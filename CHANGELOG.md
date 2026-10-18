@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.3 — desktop shortcuts
+
+- Guided setup offers application-menu and desktop shortcuts independently. Desktop shortcuts use the configured XDG desktop folder and are executable.
+- Separate installations receive distinct shortcut names when needed, preserving working installations and unrelated entries. Shortcut destinations are checked before any files are written.
+
 ## 0.4.2 — Queue-page cleanup
 
 - Moved cleanup directly onto Queue: Clear all removes finished records only; a left-side × appears when hovering over a finished row.
