@@ -52,3 +52,9 @@ The public helper uses only its normal, stable physical-machine identity and Sha
 - AMD, Intel GPUs and ARM Linux are not supported by this release.
 
 Report the helper commit, core version, GPU/driver and exact stage, and identify whether evidence is a real output, an import/diagnostic check or an inference. Review logs before sharing them. Contributor roles are recorded in [CONTRIBUTORS.md](../CONTRIBUTORS.md).
+
+## Guided setup 0.3.0 (2026-10-18)
+
+The wizard was exercised in a real terminal against the disposable installation: it detected the GPU and existing reviewed core, opened a temporary original activation service, and stopped that service when “later” was selected. No model downloads or activation overrides were used. Resuming with the explicit placeholder preset passed core/UI integrity and diagnostics and created a private launch script. Application-menu changes and starting the app were declined for this validation.
+
+Source checks cover reviewed-installer orchestration, prerequisite consent, fresh and resumed setup, licence-email pauses, rejection of failed licence checks, stopping before runtimes after model failures, preservation of existing licence/library files, active-session protection, cancellation, shell/desktop quoting, and preservation of unrelated launchers. A complete new-owner activation/download/generation walkthrough remains a community validation target.

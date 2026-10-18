@@ -1,5 +1,6 @@
 """Local update notices and opt-in, reversible model-file updates."""
 from concurrent.futures import ThreadPoolExecutor
+from . import __version__
 import copy
 from datetime import datetime, timezone
 import hashlib
@@ -249,7 +250,7 @@ class UpdateManager:
                     'auto_check':self.state.get('auto_check',True),'check_errors':self.state.get('check_errors',[]),
                     'components':items,'available':any(x['available'] for x in items),'fingerprint':fingerprint,
                     'operation':copy.deepcopy(self.state.get('operation')),'rollback_available':bool(self.state.get('last_backup')),
-                    'linux_launcher':'Helper 0.2.0. Update this repository with git pull --ff-only; automatic helper updates are not configured.'}
+                    'linux_launcher':f'Helper {__version__}. Update this repository with git pull --ff-only; automatic helper updates are not configured.'}
 
     def _progress(self,**values):
         with self.lock:

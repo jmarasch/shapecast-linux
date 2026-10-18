@@ -11,7 +11,12 @@ from .common import core_environment, default_root, read_install, supported_plat
 def main():
     parser = argparse.ArgumentParser(description='Unofficial Shapecast Linux compatibility helper')
     parser.add_argument('--install-root', type=Path, default=default_root(), help='Private runtime and data directory')
-    commands = parser.add_subparsers(dest='command', required=True)
+    commands = parser.add_subparsers(dest='command')
+    guided = commands.add_parser('setup', help='Guided installation, activation, models and runtimes')
+    guided.add_argument('--install-root',type=Path,default=argparse.SUPPRESS)
+    guided.add_argument('--installer',type=Path)
+    guided.add_argument('--cxx',type=Path,help='Existing GCC 14-or-older C++ compiler')
+    guided.add_argument('--no-browser',action='store_true')
     setup = commands.add_parser('install', help='Install from your purchased Windows installer')
     setup.add_argument('--installer', type=Path, required=True)
     setup.add_argument('--python', type=Path, help='Existing CPython 3.11 executable')
@@ -39,9 +44,14 @@ def main():
     update=commands.add_parser('update',help='Apply a reviewed Windows installer without replacing profiles')
     update.add_argument('--installer',type=Path,required=True)
     args = parser.parse_args()
+    if args.command is None:
+        args.command='setup';args.installer=None;args.cxx=None;args.no_browser=False
     try:
         supported_platform()
-        if args.command == 'install':
+        if args.command == 'setup':
+            from .wizard import setup as guided_setup
+            return guided_setup(args)
+        elif args.command == 'install':
             from .installer import install
             install(args)
         elif args.command == 'runtime':

@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — guided setup
+
+- One terminal wizard for prerequisites, installer validation, activation, models, native runtimes, diagnostics and launchers.
+- Saved setup stages support pausing for an activation email and resuming. Existing data stays in place; unlicensed model setup remains blocked.
 
 - Check shared read-only model folders without treating them as failed update feeds. Staging remains available; applying still requires a private writable model copy.
 

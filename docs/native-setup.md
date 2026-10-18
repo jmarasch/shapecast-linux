@@ -1,3 +1,5 @@
+For guided installation, run `./setup.sh` from a terminal. The manual commands below remain available for scripts, diagnostics and individual repairs.
+
 # Native inference setup
 
 The core and all inference hosts use CPython 3.11. The helper keeps separate environments because the Quality, image and rigging stacks use different Diffusers/Transformers versions. `requirements/*.txt` records the complete tested environment snapshots; the installer uses `--no-deps` deliberately to reproduce these exact snapshots rather than resolve a different combination.

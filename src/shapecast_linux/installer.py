@@ -11,6 +11,7 @@ import urllib.request
 from pathlib import Path
 
 from .common import LOCK, REPO, private_json, relative_path, sha256, supported_platform, verify_vendor
+from . import __version__
 
 
 def run(args, **kwargs):
@@ -32,7 +33,7 @@ def download(spec, cache):
     partial = target.with_name(target.name+'.partial')
     print('Downloading '+spec['url'].rsplit('/', 1)[1]+'…', flush=True)
     try:
-        request = urllib.request.Request(spec['url'], headers={'User-Agent':'shapecast-linux/0.2.0'})
+        request = urllib.request.Request(spec['url'], headers={'User-Agent':'shapecast-linux/'+__version__})
         with urllib.request.urlopen(request, timeout=60) as response, partial.open('wb') as out:
             shutil.copyfileobj(response, out, length=1024*1024)
         if sha256(partial) != spec['sha256']:

@@ -22,6 +22,8 @@ For an installed copy, the opt-in integration check creates and exports a placeh
 python3 scripts/check_preview.py
 ```
 
+The guided setup tests use synthetic state and mocked stage boundaries; do not add real keys or machine identifiers to fixtures. Also test pause/resume in an interactive terminal when changing the wizard.
+
 For native-runtime changes, build fresh environments from the pinned snapshots and run the affected real GPU stage using your own purchased files. Preserve a known working installation and mount shared weights read-only during regression tests. Include hardware/driver and peak memory when available. Never publish model outputs belonging to another owner.
 
 New installer support needs the new SHA-256, verified core/runtime versions, extraction checks and an actual preview/export test. Preserve original commercial files and licence enforcement. Do not simply disable the known-version check.

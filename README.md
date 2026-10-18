@@ -27,7 +27,32 @@ sudo apt install git python3 nodejs 7zip g++-13 libgl1 libegl1 libxrender1 libxi
 
 Older distributions may use `p7zip-full` and a different supported GCC package. The helper can download a private, checksum-verified Blender and Python runtime. For Quality it can also install a pinned private CUDA compiler; it does not replace your system CUDA toolkit or GPU driver.
 
-## Install and activate
+## Guided setup (recommended)
+
+Clone the repository and run the wizard in a terminal:
+
+```bash
+git clone https://github.com/jmarasch/shapecast-linux.git
+cd shapecast-linux
+./setup.sh
+```
+
+You can also run `./shapecast-linux` without a command, or `./shapecast-linux setup`. The wizard asks for your install folder and purchased installer, checks your NVIDIA GPU and prerequisites, and offers Full, Quality, Fast or placeholder-only setup. On apt-based systems it can install missing system packages after you explicitly choose yes and enter your normal sudo password. It never upgrades your driver or adds package repositories.
+
+It then opens the original activation page, waits for a valid vendor-issued licence, downloads or imports the required model packs, builds the selected native runtimes, runs diagnostics and offers an application-menu launcher. Keys are entered in the local browser page, not logged or pasted into the terminal. If you are waiting for the licence email, choose **later**. Run the same wizard again to resume; verified downloads and finished runtimes are reused. Run it from a terminal; redirected/non-interactive input is rejected.
+
+Advanced options:
+
+```bash
+./setup.sh --install-root "/path/to/private data" --installer "/path/to/Shapecast-Setup.exe"
+./setup.sh --cxx /usr/bin/g++-13 --no-browser
+```
+
+Existing installations using this helper are reused. A reviewed software update keeps its normal backup checkpoint. Your other installations are not automatically imported or deleted. Keep the repository folder because the launcher uses its code.
+
+The wizard's real licence-email pause and preview-resume paths have been checked against a local installation. Complete new-owner vendor activation and licensed model downloads still need independent validation; see [validation](docs/validation.md).
+
+## Manual install and activate
 
 ```bash
 git clone https://github.com/jmarasch/shapecast-linux.git
