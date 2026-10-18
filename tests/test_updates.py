@@ -163,7 +163,24 @@ class Updates(unittest.TestCase):
         with self.assertRaises(ValueError):self.manager.download('models')
         self.assertOld()
 
-if __name__=='__main__':unittest.main(verbosity=2)
+    def test_read_only_shared_models_can_be_checked_and_staged_but_not_applied(self):
+        shared=Path(self.tmp.name)/'shared-models'
+        self.pack.rename(shared);self.pack.symlink_to(shared,target_is_directory=True)
+        self.manager.check();entry=self.manager.catalog['models']
+        self.assertTrue(entry['read_only']);self.assertTrue(entry['available'])
+        self.assertNotIn('models',self.manager.status()['check_errors'])
+        self.ready()
+        with self.assertRaisesRegex(ValueError,'shared read-only'):self.manager.apply()
+        self.assertOld();self.assertEqual(self.manager.status()['operation']['state'],'ready')
+
+    def test_read_only_shared_models_already_current_report_no_update(self):
+        shared=Path(self.tmp.name)/'shared-models'
+        self.pack.rename(shared);self.pack.symlink_to(shared,target_is_directory=True)
+        self.remote(self.old);self.manager.check()
+        self.assertTrue(self.manager.catalog['models']['read_only'])
+        self.assertFalse(self.manager.catalog['models']['available'])
+        self.assertNotIn('models',self.manager.status()['check_errors'])
+
 
 class LifespanTests(unittest.IsolatedAsyncioTestCase):
     async def test_automatic_checks_share_vendor_lifespan_and_stop_on_exit(self):

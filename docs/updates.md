@@ -9,3 +9,5 @@ Software downloads remain staged Windows installers. Never run them through Wine
 To restore a software checkpoint, close both profiles first, preserve the newer `vendor/` separately, restore the checkpoint's `vendor/` and `install.json`, and use the corresponding helper revision. Database/settings snapshots are available if a future release changes their schema; do not overwrite a newer library database casually because it contains work created since the checkpoint. The currently supported 0.3.17 update did not require a library-schema migration.
 
 The helper itself updates through `git pull --ff-only`. A separate published helper-release feed is not configured. The banner says so rather than claiming an updater exists for the Linux launcher. This repository does not silently update itself.
+
+Shared model folders may be checked without granting write access. If weights are shared read-only with another installation, the panel reports their update status and allows verified staging, but keeps Apply disabled. A separate private model copy is required before installing those changes; checking never requires making the working model folder writable.

@@ -136,6 +136,7 @@
         }
         if (item.failed_check) card.append(element('p', 'This feed was unavailable during the last check.', 'lu-warning'));
         if (item.kind === 'software') card.append(element('p', 'Downloads are kept separate. This Windows installer needs a Linux compatibility review before it can replace the working application.', 'lu-muted'));
+        else if (item.read_only) card.append(element('p', 'These models are shared read-only with your working installation. Checks and staged downloads work here; applying an update requires a separate private model copy.', 'lu-muted'));
         else if (item.compatibility_required) card.append(element('p', 'This pack also changes model code. Download it for review; installation needs a Linux compatibility check.', 'lu-warning'));
         else if (item.available) card.append(element('p', 'Only changed model files are downloaded. Applying keeps a backup so you can restore the previous models.', 'lu-muted'));
         const matches = operation.component === item.id && operation.fingerprint === item.fingerprint;
@@ -156,7 +157,7 @@
               } catch (failure) { error = failure.message; renderPanel(); }
             }); card.append(save);
             card.append(element('p', 'Downloaded and verified. Your current Linux installation is still active.', 'lu-success'));
-          } else if (!item.compatibility_required) {
+          } else if (!item.compatibility_required && !item.read_only) {
             const apply = button('Apply model update', () => action('/apply'));
             apply.disabled = pending || state.busy; card.append(apply);
             if (state.busy) card.append(element('p', 'Finish or cancel current casts before applying.', 'lu-warning'));

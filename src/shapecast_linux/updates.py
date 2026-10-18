@@ -147,7 +147,7 @@ class UpdateManager:
             return {p:v for p,v in files.items() if p.startswith('hf-cache/') or p.endswith(('.ckpt','.safetensors','.pth')) and p.startswith('rig-pack/')}
         return {p:v for p,v in files.items() if p=='engine/hy3dpaint/ckpt/RealESRGAN_x4plus.pth'}
 
-    def _destinations(self,component,relative):
+    def _destinations(self,component,relative,for_write=True):
         source=self.sources[component]
         relative=safe_relative(relative)
         if component=='fast':relative=PurePosixPath(relative.name)
@@ -157,7 +157,7 @@ class UpdateManager:
         if component=='sharpener' and (self.root/'engines/quality').is_dir():
             paths.append(self.root/'engines/quality/hy3dpaint/ckpt/RealESRGAN_x4plus.pth')
         for path in paths:
-            if not path.resolve().is_relative_to(self.root) or path.is_symlink():
+            if for_write and (not path.resolve().is_relative_to(self.root) or path.is_symlink()):
                 raise ValueError('A model update target leaves the local runtime or is a symbolic link.')
         return paths
 
@@ -176,14 +176,15 @@ class UpdateManager:
         url=BASE+'/v1/'+source['name']+'/pack.json'
         manifest=self.transport.json(url)
         selected=self._selected(component,validated_files(manifest,source['name']))
-        changed=[]
+        changed=[];read_only=False
         for relative,(size,sha) in selected.items():
-            destinations=self._destinations(component,relative)
+            destinations=self._destinations(component,relative,for_write=False)
+            read_only=read_only or any(not p.resolve().is_relative_to(self.root) or p.is_symlink() for p in destinations)
             if baseline.get(relative)!=[size,sha] or any(not p.is_file() for p in destinations):
                 changed.append({'relative':relative,'size':size,'sha256':sha,'url':BASE+'/v1/'+source['name']+'/'+urllib.parse.quote(relative,safe='/')})
         code_change=any(f['relative'].endswith(('.py','.pyc','.so','.pyd','.exe')) for f in changed)
         return {'id':component,'title':source['title'],'kind':'models','version':str(manifest.get('version','')),
-                'built':manifest.get('built'),'files':changed,'available':bool(changed),'compatibility_required':code_change,
+                'read_only':read_only,'built':manifest.get('built'),'files':changed,'available':bool(changed),'compatibility_required':code_change,
                 'download_bytes':sum({f['sha256']:f['size'] for f in changed}.values()),'fingerprint':hashlib.sha256(json.dumps(changed,sort_keys=True).encode()).hexdigest()}
 
     def _inspect_software(self):
@@ -306,7 +307,7 @@ class UpdateManager:
                 if partial.stat().st_size!=entry['size'] or digest(partial)!=entry['sha256']:
                     partial.unlink(missing_ok=True);raise ValueError('The update failed checksum verification. Download it again.')
                 os.replace(partial,target);verified[entry['sha256']]=target;completed+=entry['size']
-            self._progress(state='ready',done_bytes=completed,message=('Installer downloaded and verified. A Linux compatibility review is required before installation.' if plan['kind']=='software' else 'Model update downloaded and verified. Apply when your casts have finished.'))
+            self._progress(state='ready',done_bytes=completed,message=('Installer downloaded and verified. A Linux compatibility review is required before installation.' if plan['kind']=='software' else 'Model update downloaded and verified. A private model copy is required before installation.' if plan.get('read_only') else 'Model update downloaded and verified. Apply when your casts have finished.'))
         except InterruptedError:
             self._progress(state='paused',message='Download paused. Download again to resume.')
         except Exception as exc:
@@ -319,6 +320,7 @@ class UpdateManager:
         staging=self.directory/'staging'/operation['fingerprint']
         plan=json.loads((staging/'plan.json').read_text())
         if plan['kind']!='models':raise ValueError('Software installers require a Linux compatibility review before installation.')
+        if plan.get('read_only'):raise ValueError('These models are shared read-only. Use a private model copy before applying updates; the working installation will not be changed.')
         if plan.get('compatibility_required'):raise ValueError('This update contains model code changes and needs Linux compatibility review.')
         return plan,staging
 

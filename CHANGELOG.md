@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Check shared read-only model folders without treating them as failed update feeds. Staging remains available; applying still requires a private writable model copy.
+
 ## 0.2.0 — native inference and Shapecast 0.3.17
 
 - Reviewed 0.3.17 installer, original core/UI integrity checks and safe software-update backups.
